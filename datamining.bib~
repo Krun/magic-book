@@ -1,0 +1,66 @@
+@article{Chen1996,
+author = {Chen, MS},
+file = {:home/aperez/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Chen - 1996 - Data mining an overview from a database perspective.pdf:pdf},
+journal = {\ldots data Engineering, IEEE Transactions \ldots},
+title = {{Data mining: an overview from a database perspective}},
+url = {http://ieeexplore.ieee.org/xpls/abs\_all.jsp?arnumber=553155},
+year = {1996}
+}
+@article{Fayyad1996,
+author = {Fayyad, U},
+file = {:home/aperez/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Fayyad - 1996 - The KDD process for extracting useful knowledge from volumes of data.pdf:pdf},
+journal = {Communications of the ACM},
+title = {{The KDD process for extracting useful knowledge from volumes of data}},
+url = {http://dl.acm.org/citation.cfm?id=240464},
+year = {1996}
+}
+@article{Feyyad1996,
+author = {Feyyad, UM},
+journal = {IEEE expert},
+title = {{Data mining and knowledge discovery: Making sense out of data}},
+url = {http://ieeexplore.ieee.org/xpls/abs\_all.jsp?arnumber=539013},
+year = {1996}
+}
+@article{Frawley1992,
+author = {Frawley, WJ},
+file = {:home/aperez/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Frawley - 1992 - Knowledge discovery in databases An overview.pdf:pdf},
+journal = {Ai Magazine},
+title = {{Knowledge discovery in databases: An overview}},
+url = {http://scholar.google.es/scholar?hl=en\&q=knowledge+discovery+steps\&btnG=\&as\_sdt=1,5\&as\_sdtp=\#4},
+year = {1992}
+}
+@article{Wu2010,
+author = {Wu, D and Wang, X and Zuo, T},
+journal = {Information Science and  \ldots},
+title = {{A Sequential Pattern Mining algorithm with time constraints based on vertical format}},
+url = {http://ieeexplore.ieee.org/xpls/abs\_all.jsp?arnumber=5691971},
+year = {2010}
+}
+@article{Suh2011,
+author = {Suh, SC},
+title = {{Practical Applications of Data Mining}},
+url = {http://books.google.es/books?hl=en\&amp;lr=\&amp;id=U8Lw3aa67AkC\&amp;oi=fnd\&amp;pg=PP2\&amp;dq=Practical+Applications+of+Data+Mining\&amp;ots=4nDdA3wEwn\&amp;sig=yMdIZY9Mq\_yyzXrzXVm8ijMuRgU},
+year = {2011}
+}
+@article{Weiss2002,
+author = {Weiss, GM},
+journal = {Handbook of Knowledge Discovery and Data Mining},
+title = {{Predicting telecommunication equipment failures from sequences of network alarms}},
+url = {http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.34.1354\&amp;rep=rep1\&amp;type=pdf},
+year = {2002}
+}
+@article{Zhao2003a,
+author = {Zhao, Q and Bhowmick, SS},
+journal = {ITechnical Report CAIS Nayang  \ldots},
+title = {{Sequential pattern mining: A survey}},
+url = {http://cs.nju.edu.cn/zhouzh/zhouzh.files/course/dm/reading/reading04/zhao\_techrep03.pdf},
+year = {2003}
+}
+@article{Zhao2003,
+author = {Zhao, Q and Bhowmick, SS},
+file = {:home/aperez/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Zhao, Bhowmick - 2003 - Association rule mining A survey.pdf:pdf},
+journal = {Available on WWW: http://www. cse. unsw.  \ldots},
+title = {{Association rule mining: A survey}},
+url = {http://sci2s.ugr.es/keel/pdf/specific/report/zhao03ars.pdf},
+year = {2003}
+}
