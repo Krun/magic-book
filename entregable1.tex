@@ -30,12 +30,19 @@ However, the costs of \emph{preventive maintenance} can be drastically reduced b
 In both cases, \emph{prediction} can be a key element for maintenance optimisation. Either we know which are the indicators of a system deterioration which we can repair, or we know which systems are going to fail and when to be prepared and optimise corrective procedures. We can even speak of a new type of maintenance - \emph{predictive maintenance} - which embraces several techniques to try and obtain this knowledge of future events.
 
 \section{Project overview}
+\emph{Trainmining} aims to implement predictive maintenance techniques on already-existing maintenance stations of a railway network. These maintenance stations monitor different elements and subsystems over a railway line and raises alarms whenever a line element fails or requires human intervention. Additionally, maintenance workers perform different preventive maintenance procedures, gathering information about several parameters on each element and performing the appropriate actions when needed. Acquisition of values and determination of necessary actions is however not automatised within the maintenance stations, and workers have to manually perform these tasks.
 
-The context for the given project, consists on a maintenance system of a railway network. This maintenance systems gathers information on several events happening along the railway lines, as well as several measurements related with the environment regarding those alarms.
+In order to design \emph{predictive procedures} for the railway network, we have a big amount of event logs gathered by the maintenance stations, as well as registries filled by maintenance workers when performing preventive tasks. We will therefore try to extract, from that large amount of data, knowledge on how to predict future events from current observations
 
-In order to allow a much more efficient maintenance, preventive techniques are much more appropriate than just a corrective approach. Being able to anticipate to failures would offer us a great advantage to be able to solve them in the most efficient way, or even to prevent them if necessary.
+In this directon, \emph{Data Mining} techniques can be extremely useful in order to find relations between patterns in environment variables and the occurrence of events, or even relations between events themselves. These relations, which may at first not be apparent for the human mind, can be obtained through different automated learning processes, and thus infer markers which will act as indicators of when and how failures can happen. In order to extract this data, we will need to count on a significantly high amount of previous data, gathered during previous years, from which we will apply said techniques.
 
-In this directon, \emph{Data Mining} techniques can be extremely useful in order to find relations between patterns in environment variables and the occurrence of events, or even relations betwen events themselves. These relations, which may at first not be apparent for the human mind, can be obtained through different automated learning processes, and thus infer markers which will act as indicators of when and how failures can happen. In order to extract this data, we will need to count on a significantly high amount of previous data, gathered during previous years, from which we will apply said techniques.
+\section{Objectives}
+\subsection{Alarm-based prediction}
+\subsubsection{Association sequential rules}
+\subsubsection{Station type differentiation}
+\subsubsection{Prediction confidence definition}
+
+\subsection{Measuring-based prediction}
 
 \section{Database description}
 As mentioned in section~\ref{sec:context}, we will count on two different types of databases. First of all, a database gathering a timeline of alarms (failures and other events which require assistance) and a database gathering environment variables which can act as indicators for the alarms. Both types of databases will be present for each maintenance station present in the system.
