@@ -4,6 +4,7 @@
 % Allow the change of line spacing
 \usepackage{setspace}
 
+\usepackage{tabularx}
 
 \usepackage{graphicx}
 
@@ -19,6 +20,7 @@
 
 \begin{document}
 \newcommand\litem[1]{\item{\bfseries #1 }}
+\renewcommand{\arraystretch}{1.5} %Makes tables less crammed
 %\renewcommand{\abstractname}{Executive Summary}
 %\begin{abstract}
 %
@@ -33,12 +35,9 @@
 \pagenumbering{roman}
 \section*{Executive Summary}
 \addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
-This document describes the scope and potential outcomes of the project {\it Trainmining}. This project is developed by Thales Spain in collaboration with the research group {\em Grupo de Sistemas Inteligentes} (Intelligent Systems Group) of the
-Universidad Politécnica de Madrid. The goal of the project is the application of machine
-learning techniques for predicting alarms in the alarm system that have been developed by
-Thales Spain. Machine learning techniques will be based on historical data coming from Thales Spain railway maintenance system which is on operation in several cities. 
+This document describes the scope and potential outcomes of the project \emph{Trainmining}. This project is developed by Thales Spain in collaboration with the research group \emph{Grupo de Sistemas Inteligentes} (Intelligent Systems Group) of the Universidad Politécnica de Madrid. The goal of the project is the application of machine learning techniques for predicting alarms in the maintenance systems that have been developed by Thales Spain. Machine learning techniques will be based on historical data coming from Thales Spain railway maintenance system which operates in several railway lines troughout Spain. 
 
-The document provides a general overview of the railway maintenance system developed by Thales Spain, as well as the available historical data. In addition, the document describes potential learning goals for the application of machine learning techniques. Then, the document describes which are the learning goals Thales Spain is more interested in, and details potential machine learning techniques to achieve them. The selected learning goals are learning sequential alarm rules, and its usage is illustrated with a use case. 
+The document provides a general overview of the railway maintenance system developed by Thales Spain, as well as a first insight in the available historical data and how it will be treated. In addition, the document describes potential learning goals for the application of machine learning techniques. Finally, the document describes which are the learning goals Thales Spain is more interested in, and details potential machine learning techniques to achieve them. The main learning goal is learning alarm prediction techniques, and their usage is illustrated with a use case. 
 
 \newpage
 \tableofcontents % indice de contenidos
@@ -93,7 +92,7 @@ At the moment of writing this document, we count on data of three maintenance st
 \hline 
 \end{tabular}
 \\
--\\
+\bigskip
 ERMTS: European Rail Traffic Management System\\
 SAM-E-L: Sistema de Ayuda al Mantenimiento para Ence (Local)\\
 
@@ -116,6 +115,8 @@ SAM-E-L: Sistema de Ayuda al Mantenimiento para Ence (Local)\\
 
 \section{Learning objectives}
 In this section we will define the learning objectives of our project: what kind of information we aim to extract from all the available data. In latest terms, what we want is to be able to predict future events based on events from the past. A prediction will be based on one or more past events (the \emph{antecedent}) and indicate one or more events than are likely to happen in the future (the \emph{consequent}). Furthermore, we can impose restrictions in terms of time. For instance, we should limit the temporal distance between events in the antecedent, and estimate how far in the future the consequent will happen. Finally, as giving a certain prediction that will be true \emph{everytime}, our prediction will have an associated \emph{confidence}, which can be described as the probability for our prediction to be true. A graphic representation of a generic prediction can be seen in figure~\ref{fig:ass_rule}.
+
+Table~\ref{tab:objectives_methods} contains a summary of learning objectives, along with the working methods which will be followed for each of them as is explained in section~\ref{sec:methods}.
 
 \begin{figure}[hbtp]
 \includegraphics[width=\textwidth]{./img/association_rules.png}
@@ -152,11 +153,11 @@ However, automatic acquisition of this kind of data is not a trivial issue. With
 Currently, the only source of this kind of information we have is the logs maintenance workers fill when performing preventive maintenance procedures. Although we might be able to actually extract useful knowledge from this kind of data, its implementation would not be immediate or easy, as said automatic data acquisition systems would be needed in order for our rules to be applied. For these reasons, we will relegate this kind of predictions to a second place, and focus on alarm-based predictions as mentioned in section~\ref{sec:alarm-based-prediction}.
 
 \section{Knowledge Discovery in Databases}
-The whole process we are approaching in this project is usually known as \emph{Data Mining}, or more generally, \emph{Knowledge Discovery in Databases}. A lot of research has been already done on this field which will serve as background for our project, as well as tools and algorithms which have been designed to treat similar problems and which we can adapt or use as base to develop our own.
+The whole process we are approaching in this project is usually known as \emph{Data Mining}, or more generally, \emph{Knowledge Discovery in Databases}. A lot of research has been already done on this field which will serve as background for our project, as well as tools and algorithms which have been designed to treat similar problems and which we can adapt or use as base to develop our own\cite{chen1996data, fayyad1996kdd}.
 
-Knowledge Discovery in Databases - or \emph{KDD} - is a term used to describe the procedure of acquiring high-level knowledge from low-level data. As a formal definition, \emph{Knowledge Discovery} is the non-trivial extraction of implicit, previously unknown, and potentially useful information from data~\cite{Frawley1992}. This knowledge is usually found in the form of patterns and relations between variables which were unlikely to be related.
+Knowledge Discovery in Databases - or \emph{KDD} - is a term used to describe the procedure of acquiring high-level knowledge from low-level data. As a formal definition, \emph{Knowledge Discovery} is the non-trivial extraction of implicit, previously unknown, and potentially useful information from data~\cite{frawley1992knowledge}. This knowledge is usually found in the form of patterns and relations between variables which were unlikely to be related.
 
-The KDD process involves several steps~\cite{Feyyad1996} which can be summarized as follows:
+The KDD process involves several steps~\cite{feyyad1996data} which can be summarized as follows:
 
 \begin{enumerate}
  \litem{Understanding the problem:} The first step involves understanding the environment we are studying and gaining relevant prior knowledge. In this step we must identify which goals we want to set for the knowledge discovery process. This is, we must identify the kind of knowledge we want to obtain and the data we can count on for this process.
@@ -176,8 +177,8 @@ Different algorithms can usually be classified in the following categories:
  \litem{Regression:} Learning a function that maps an item to a predicted variable.
  \litem{Segmentation:} Identifying a set of clusters to categorise the data.
  \litem{Summarization:} Finding a compact description for the data.
- \litem{Association:} Finding significant dependencies between different variables.\cite{Zhao2003}.
- \litem{Sequence analysis:} Finding frequent sequences or episodes in data~\cite{Zhao2003a,Weiss2002}.
+ \litem{Association:} Finding significant dependencies between different variables.\cite{Zhao2003association}.
+ \litem{Sequence analysis:} Finding frequent sequences or episodes in data~\cite{zhao2003sequential,weiss2002predicting}.
 \end{enumerate}
 
 \subsection{Data preprocessing}
@@ -221,23 +222,44 @@ Most data mining processes are usually focused on predicting the value of some v
 
 For further simplification, we can even reduce the problem to terms of whether an alarm happens or not, and disregard the number of times each of them happen. This approach would be necessary when treating alarms which are not very frequent, and for which the number of occurrences during an observation will typically vary between 0 and 1. However, for events with a higher occurrence rate, the actual number of occurrences within an observation might be of importance. The optimum approach might vary between situations, and therefore we cannot still decide for one of them at early stages of the project.
 
-It is also important to note that an optimum choice of the sampling time is important. If we want to achieve predictions in time spans of months, it might be inappropriate to choose an observation period of seconds or minutes. For our project, due to the characteristics of the procedures of railway maintenance, we aim to achieve predictions in terms of weeks. Therefore, we have chosen the observation time to be a period of 24 hours. When working with \emph{sequence analysis}, we have also to define additional time constraints\cite{Suh2011}, such as the maximum distance between the antecedent and consequent, or even between several events on the antecedent (or consequent).
+It is also important to note that an optimum choice of the sampling time is important. If we want to achieve predictions in time spans of months, it might be inappropriate to choose an observation period of seconds or minutes. For our project, due to the characteristics of the procedures of railway maintenance, we aim to achieve predictions in terms of weeks. Therefore, we have chosen the observation time to be a period of 24 hours. When working with \emph{sequence analysis}, we have also to define additional time constraints\cite{suh2011practical}, such as the maximum distance between the antecedent and consequent, or even between several events on the antecedent (or consequent).
 
-A large amount of existing algorithms have been implemented taking into consideration these issues for sequential analysis~\cite{Wu2010}. Some of them will be analysed in order to work as a base or tool for our project.
+A large amount of existing algorithms have been implemented taking into consideration these issues for sequential analysis~\cite{wu2010sequential}. Some of them will be analysed in order to work as a base or tool for our project.
 
-\section{Working methods}
-For the development of this project, we have found a vast amount of useful tools and software which will provide an inestimable help in the different processes of our work. The main tool used will be the \emph{R} language, a very powerful tool commonly used for handling large amounts of data in an efficient way, and for which a vast amount of tools are available for our needs. R, and the IDE we are using, \emph{RStudio} are open source software and available at no cost.
+\section{Working methods} \label{sec:methods}
+For the development of this project, we have found a vast amount of useful tools and software which will provide an inestimable help in the different processes of our work. The main tool used will be the \emph{R} language\cite{ihaka1996r}, a very powerful tool commonly used for handling large amounts of data in an efficient way, and for which a vast amount of tools are available for our needs. R, and the IDE we are using, \emph{RStudio}\cite{racine2012rstudio} are open source software and available at no cost.
 
 Due to licensing and compatibility issues, we are not able to use \emph{Microsoft SQL Server} databases to handle data. This is highly inconvenient as the data provided by Thales is in form of MS SQL backup files, which we needed to migrate to a compatible system of our choice: \emph{MySQL}. Given the tabular nature of the data, another solution based on plain text files would not be recommendable - although possible to handle with R - at least at the earliest stages until we analyse all the information and reduce the number of variables to export. In order to perform these migration tasks, a \emph{Windows} platform with \emph{Microsoft SQL Server Express} was required. Migration was successfully possible after slight modification of indexes and field definitions to fix compatibility issues. Once in MySQL format, we can query our data from RStudio without being limited to any kind of platform type or operative system, and will indeed perform further stages of the project under \emph{Unix} platforms.
 
-Among all the available algorithms which can be useful for our project, we have chosen the \emph{cSPADE} algorithm as our starting point. It provides the most straight-away solution for the kind of problem we are approaching, as it considers temporal characteristics and allows us to set time constraints very easily. Other algorithms will be studied and applied at convenience, in order to complement cSPADE and find weak points which we could improve.
+Among all the available algorithms which can be useful for our project, we have chosen the \emph{cSPADE} algorithm\cite{zaki2001spade} as our starting point. It provides the most straight-away solution for the kind of problem we are approaching, as it considers temporal characteristics and allows us to set time constraints very easily. Other algorithms will be studied and applied at convenience, in order to complement cSPADE and find weak points which we could improve.
 
-Another very useful tools which can be of great help for obtention of this kind of predictions are \emph{Bayesian Networks}\cite{Jensen2009}. A Bayesian network is a probabilistic model which represents a set of variables and their conditional dependencies via a directed acyclic graph. A very simplified example can be seen in figure~\ref{fig:bayesian_example} In our case, it would represent the types of alarms and their relation in a graphical network, allowing us to analyse the probabilities of each of them happening within the current observation. Once an alarm has already been raised, its probability can be set to 100\% in the current observation, allowing us to recalculate probabilities for the rest of alarms by application of Bayes theorem. Bayesian networks can be either directly implemented onto any kind of system - as long as we can have real-time information on risen alarms - or be used to extract rules and implement them onto any other kind of system. There are lots of available tools for working with Bayesian networks. Specifically, we will use \emph{GeNIe/SMILE} as well as \emph{R libraries} for this purpose.
+Another very useful tools which can be of great help for obtention of this kind of predictions are \emph{Bayesian Networks}\cite{jensen1996introduction}. A Bayesian network is a probabilistic model which represents a set of variables and their conditional dependencies via a directed acyclic graph. A very simplified example can be seen in figure~\ref{fig:bayesian_example} In our case, it would represent the types of alarms and their relation in a graphical network, allowing us to analyse the probabilities of each of them happening within the current observation. Once an alarm has already been raised, its probability can be set to 100\% in the current observation, allowing us to recalculate probabilities for the rest of alarms by application of Bayes theorem. Bayesian networks can be either directly implemented onto any kind of system - as long as we can have real-time information on risen alarms - or be used to extract rules and implement them onto any other kind of system. There are lots of available tools for working with Bayesian networks. Specifically, we will use \emph{GeNIe/SMILE}\cite{druzdzel1999smile} as well as \emph{R libraries} for this purpose.
+
+Table~\ref{tab:objectives_methods} contains a summary of learning objectives and the methods which will be used for each of them.
+
 
 \begin{figure}[hbtp]
 \includegraphics[width=\textwidth]{img/bayesian_example.png}
 \caption{An example of a very simple bayesian network} \label{fig:bayesian_example}
 \end{figure}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|X|l|X|}
+\hline Goal & Priority & Method \\ 
+\hline Perform a preliminary statistical analysis to set the project grounds & Compulsory & Statistical analysis with R \\ 
+\hline Identify differences between maintenance stations & Compulsory & Statistical analysis with R \\ 
+\hline Obtain rules to predict alarms using data of other alarms occurrence & Compulsory & Data Mining algorithms with R \\ 
+\hline Obtain a Bayesian network to overview causal relations between alarms & Compulsory & Bayesian Networks with GeNIe/SMILE \\ 
+\hline Validate and evaluate rule sets. Determine confidence of predictions & Compulsory & Cross-validation and confidence analysis with R \\ 
+\hline Extract additional rules from Bayesian network for rule-form implementation & Desirable & GeNIE/SMILE \\ 
+\hline Identify rule sets which can be applied to different station types & Desirable & Inter-station cross-validation with R \\ 
+\hline Obtain rules to predict events using data of system and environment variables & Optional & Data Mining algorithms with R \\ 
+\hline Identify which system or environment variables are more decisive for alarm prediction & Optional & Data Mining algorithms with R \\ 
+\hline 
+
+\end{tabularx} 
+\caption{Summary of project goals and methods} \label{tab:objectives_methods}
+\end{table}
 
 
 \section{Final comments}
