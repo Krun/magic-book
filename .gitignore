@@ -4,3 +4,7 @@
 *.blg
 *.aux
 *.bbl
+*.dvi
+*.lof
+*.lot
+*.toc
