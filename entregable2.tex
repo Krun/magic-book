@@ -1,90 +1,196 @@
-\documentclass[a4paper,10pt]{report}
-\usepackage[utf8x]{inputenc}
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+
+% Allow the change of line spacing
+\usepackage{setspace}
+
+\usepackage{tabularx}
+
 \usepackage{graphicx}
 
+\usepackage[usenames,dvipsnames,table]{xcolor}
+
+%\usepackage{hyperref}
+%\usepackage{breakurl}
+
 %opening
-\title{Trainmining}
-\author{}
+%\title{Trainmining}
+%\author{Grupo de Sistemas Inteligentes \\ Universidad Politécnica de Madrid}
+
+
 
 
 \begin{document}
 \newcommand\litem[1]{\item{\bfseries #1 }}
-\renewcommand{\abstractname}{Executive Summary}
-\begin{abstract}
+\renewcommand{\arraystretch}{1.5} %Makes tables less crammed
 
-\end{abstract}
+\newcommand\HeadCell[1]{%
+  \multicolumn{1}{c|}{\cellcolor{MidnightBlue}\bfseries\sffamily\textcolor{white}{#1}}
+}
+
+%\renewcommand{\abstractname}{Executive Summary}
+%\begin{abstract}
+%
+%\end{abstract}
+
+% Set line spacing to 1.5
+\onehalfspacing
+
+\include{entregable1_titlepage}
+%\maketitle
+
+\pagenumbering{roman}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
+This document describes the scope and potential outcomes of the project \emph{Trainmining}. This project is developed by Thales Spain in collaboration with the research group \emph{Grupo de Sistemas Inteligentes} (Intelligent Systems Group) of the Universidad Politécnica de Madrid. The goal of the project is the application of machine learning techniques for predicting alarms in the maintenance systems that have been developed by Thales Spain. Machine learning techniques will be based on historical data coming from Thales Spain railway maintenance system which operates in several railway lines troughout Spain. 
+
+The document provides a general overview of the railway maintenance system developed by Thales Spain, as well as a first insight in the available historical data and how it will be treated. In addition, the document describes potential learning goals for the application of machine learning techniques. Finally, the document describes which are the learning goals Thales Spain is more interested in, and details potential machine learning techniques to achieve them. The main learning goal is learning alarm prediction techniques, and their usage is illustrated with a use case. 
+
+\newpage
+\tableofcontents % indice de contenidos
+\addcontentsline{toc}{section}{Contents} % para que aparezca en el indice de 
+\cleardoublepage
+\addcontentsline{toc}{section}{List of Figures} % para que aparezca en el indice de contenidos
+\listoffigures % indice de figuras
+
+\cleardoublepage
+\addcontentsline{toc}{section}{List of tables} % para que aparezca en el indice de contenidos
+\listoftables % indice de tablas
+\cleardoublepage
+
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\section{Introduction}\label{sec:context}
 
 
-\maketitle
-\setcounter{chapter}{1}
-\chapter{Data analysis}
-\section{Alarm database}
-The alarm database has is structured as follows:\cite{Feyyad1996}
-\subsubsection*{Table ER\_ERRORS}
-Contains every alarm received by the Maintenance Station. Has the following fields:
+
+\section{Database description}\label{sec:database_description}
+In order to properly process the data provided in form of database backups, it is of essential importance that we completely understand how data is represented in databases. We will analyse the structure and how data is represented in the provided databases: Antequera, Segovia and Sevilla. Each of these database corresponds to a single \emph{maintenance station}, which comprises a whole railway line with several elements along it. The elements with diagnosis systems which can raise alarms are called \emph{installations}, and have different sets of sensors and other systems to control \emph{field elements}. An schematic representation of this architecture is represented in figure~\ref{fig:arch_stations}. The detailed description of available systems and subsystems is of few interest to us. Initially we will only need to differentiate between maintenance stations and installations.
+
+\begin{figure}[hbt]
+\includegraphics[width=\textwidth]{./img/arch_stations.png}
+\caption{Simplified diagram of the maintenance systems architecture} \label{fig:arch_stations}
+\end{figure}
+
+Each \emph{maintenance station} has its own unique database, which is of great convenience in order to treat different stations independently. We will start analysing the structure of the main tables of said databases. Due to the high complexity of the maintenance stations, there are a vast amount of tables with configuration parameters and other operational values which are not of interest for our purposes. With assistance from Thales engineers, we have reduced the tables only to those which characterise registered alarms. A total of 4 different tables is used in order to register this information, which are the following:
+
+\begin{description}
+\item[Table ER\_ERRORS] This table contains an entry for every alarm received by the maintenance station. Its fields are detailed on table~\ref{tab:table_er_errors}.
+\item[Table IG\_INSTALLATIONGENERAL] This table contains information on all the installations managed by the maintenance station. Its fields are detailed on table~\ref{tab:table_ig_installationgeneral}
+\item[Table IG\_NODO\_INSTALLATION] This table gathers additional information on installations which are nodes. Nodes are installations which can raise alarms but need a parent installation to send them to the maintenance station. Its fields are detailed on table~\ref{tab:table_ig_nodo_installation}
+\item[ERS\_ERRORS\_SAM\_ENCE] This table contains detailed information about the alarms. Its fields are detailed on table~\ref{tab:table_ers_errors_sam_ence}
+\item[ERH\_ERRORS\_HSL1] This table is equivalent to ERS\_ERRORS\_SAM\_ENCE. Maintenance stations use one or the other depending on how they receive the alarms. Its only difference with ERS\_ERRORS\_SAM\_ENCE is that registers the method used to receive the alarm. For our purposes it will be treated exactly as its equivalent, and therefore its structure can also be reviewed in table~\ref{tab:table_ers_errors_sam_ence}
+\end{description}
+
+Concluding, for each alarm we will have a timestamp and an alarm identifier in table ER\_ERRORS. Alarm identifier is a foreign key which points to table ERS\_ERRORS\_SAM\_ENCE (or equivalent) in which further details of the alarm are saved. Among these details, we can find an installation identifier which specifies which installation has produced the alarm. That identifier is also a foreign key pointing to table DVNI\_INSTALLATIONCODE, in which further details about the installation are stored. Further details on all the database fields are given in tables~\ref{tab:table_er_errors}, \ref{tab:table_ig_installationgeneral}, \ref{tab:table_ig_nodo_installation} and \ref{tab:table_ers_errors_sam_ence}.
+
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+ \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline
+ \hline DVNI\_ERRORNUMBER & Alarm identifier \\
+ \hline DVNS\_ERRORTIME & Time-stamp for the alarm \\
+ \hline DVNI\_INSTALLATIONCODE & Code of the installation in which the alarm was raised \\
+ \hline DVNI\_SENDERINSTALLATIONCODE & Code of the installation from which the alarm was sent (might be different from the one which raised it) \\
+ \hline
+\end{tabularx}
+\caption{Detail of fields on table ER\_ERRORS} \label{tab:table_er_errors}
+\end{table}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+ \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline
+ \hline DVNI\_INSTALLATIONCODE & Installation identifier  \\
+ \hline DVNI\_SYSTEMCODE & Type of system, as defined in the ``SG\_SYSTEMSGENERAL'' table \\ 
+ \hline DVNI\_VERSION & System version \\
+ \hline DVAC\_SHORTNAME & Short name of the installation \\
+ \hline DVAC\_INSTALLATIONNAME & Name of the installation \\
+ \hline DVAC\_LOCATION & Location for the installation \\
+ \hline CHK\_IS\_NODE & Whether it is a node (doesn't directly send alarms, only raise them) or not \\
+ \hline
+\end{tabularx}
+\caption{Detail of fields on table IG\_INSTALLATIONGENERAL} \label{tab:table_ig_installationgeneral}
+\end{table}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+ \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline
+ \hline IG\_NODO\_INSTALLATION & Identifier of the installation which is a node \\
+ \hline DVNI\_FATHER\_INSTALLATION & Identifier of the parent installation \\
+ \hline
+\end{tabularx}
+\caption{Detail of fields on table IG\_NODO\_INSTALLATION} \label{tab:table_ig_nodo_installation}
+\end{table}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+ \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline
+ \hline DVNI\_ERRORNUMBER & Alarm identifier \\
+ \hline MESSAGE\_ID & Unique alarm identifier \\
+ \hline MESSAGE\_TYPE & Type of alarm, always set as ``notification'' (not relevant) \\
+ \hline INVOKE\_TYPE & Tells whether the alarm has generated itself due to a connection or disconnection (if type is ``node'') or is generated by a diagnosis system (``saml'') or energy system (``energy'') \\
+ \hline INVOKE\_NAME & Irrelevant, always set to ``diagnosis'' \\
+ \hline EVENT\_TYPE & Defines the type of alarm which has been generated. Its possible values are listed in table~\ref{tab:field_event_type}. \\
+ \hline ADDITIONAL\_TEXT & Alarm code \\
+ \hline ADDITIONAL\_INFOS & Additional parameters to be shown in error message \\
+ \hline DVNI\_ERRORCATEGORY & Alarm severity. Values from 1 to 5 indicating importance of the alarm, or -1 if the alarm indicates recovery from a previous failure. \\
+ \hline
+\end{tabularx}
+\caption{Detail of fields on table ERS\_ERRORS\_SAM\_ENCE} \label{tab:table_ers_errors_sam_ence}
+\end{table}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline \HeadCell{Field name} & \HeadCell{Description} \\
+  \hline
+  \hline fieldElementAlarm & Alarm related to a field element \\
+  \hline fieldElementFailure & Failure in a field element \\
+  \hline operatorInformation & Information to the operator \\
+  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
+  \hline internalDiagnosis & Internal diagnosis of a system \\
+  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
+  \hline ImFecVersions & IM or FEC version \\
+  \hline internalTraces & Internal traces of a system \\
+  \hline operatorCommandAnswer & Answer to an operator command \\
+  \hline CommProblem & Undefined communication problem \\
+  \hline Information & Information message: versions, etc. \\
+  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
+  \hline QualityOfServiceAlarm & Loss of quality of service \\
+  \hline ProcessingErrorAlarm & SW or processing error \\
+  \hline EquipmentAlarm & Equipment failure \\
+  \hline EnvironmentAlarm & Related to the environment where the system is located \\
+  \hline other & Other \\
+  \hline
+\end{tabularx}
+\caption{Description of values for the field EVENT\_TYPE} \label{tab:field_event_type}
+\end{table}
+\clearpage
+\section{Reduced representation of alarms}
+In section~\ref{sec:database_description} we have seen a deep definition of all the tables characterising registered alarms. Each of these tables contain several fields, which in total makes an inconvenient large number of variables. While all of them are necessary for correct system function and maintenance purposes, not all of them will be necessary for us to work with alarms.
+
+In order to characterise an event, the main things we need to know can be reduced to three variables:
 \begin{itemize}
- \item DVNI\_ERRORNUMBER - Alarm identifier
- \item DVNS\_ERRORTIME - Time-stamp for the alarm
- \item DVNI\_INSTALLATIONCODE - Code of the installation in which the alarm was raised
- \item DVNI\_SENDERINSTALLATIONCODE - Code of the installation from which the alarm was sent (might be different from the one which raised it)
+\item What has happened
+\item When has it happened
+\item Where has it happened
 \end{itemize}
 
-\subsubsection*{Table IG\_INSTALLATIONGENERAL}
-This table contains information on all the installations. Has the following fields:
+In section~\ref{sec:database_description} we have seen other variables which can provide additional information which - although not essential - can be useful. Specifically, we think the following data can be of possible interest:
+
 \begin{itemize}
- \item DVNI\_INSTALLATIONCODE - Installation identifier
- \item DVNI\_SYSTEMCODE - Type of system, as defined in the ``SG\_SYSTEMSGENERAL'' table
- \item DVNI\_VERSION - System version
- \item DVAC\_SHORTNAME - Short name of the installation
- \item DVAC\_INSTALLATIONNAME - Name of the installation
- \item DVAC\_LOCATION - Location for the installation
- \item CHK\_IS\_NODE - Whether it is a node (doesn't directly send alarms, only raise them) or not
+\item How severe the event is
+\item Which type of event has happened
 \end{itemize}
 
-\subsubsection*{Table IG\_NODO\_INSTALLATION}
-This table gathers additional information on installations which are nodes. This is, installations that can raise alarms but need a Parent installation to send them. Has the following fields:
-\begin{itemize}
- \item IG\_NODO\_INSTALLATION - Identifier of the installation which is a node
- \item DVNI\_FATHER\_INSTALLATION - Identifier of the parent installation
-\end{itemize}
+These variables can help us to classify alarms or give more importance to those which are more severe. As this information is already provided on given databases, we will keep it and use it for better alarm classification and filtering. However, none of them are essential in order to characterise alarms, as both of them give information which is already implicit in our previous \emph{``what has happened''} variable. Specifically, this information will be of great help in order to make a preliminary statistical insight on the events of the databases, for which a generalisation in terms of severity and category can help us have a better overview of the situation.
 
-\subsubsection*{Alarm information tables ERH\_ERRORS\_HSL1 or ERS\_ERRORS\_SAM\_ENCE}
-Both these tables record information on the alarms. Either one or other table is filled depending on which version of the system is installed in the station. However, in terms of information, both contain the following fields:
-\begin{itemize}
- \item DVNI\_ERRORNUMBER - Alarm identifier
- \item MESSAGE\_ID - Unique alarm identifier
- \item MESSAGE\_TYPE - Type of alarm, always set as ``notification'' (not relevant)
- \item INVOKE\_TYPE - Tells whether the alarm has generated itself due to a connection or disconnection (if type is ``node'') or is generated by a diagnosis system (``saml'') or energy system (``energy'')
- \item INVOKE\_NAME - Irrelevant, always set to ``diagnosis''
- \item EVENT\_TYPE - Defines the type of alarm which has been generated. Its possible values will be described afterwards.
- \item ADDITIONAL\_TEXT - Alarm code
- \item ADDITIONAL\_INFOS - Additional parameters to be shown in error message
- \item DVNI\_ERRORCATEGORY - Alarm severity. Values from 1 to 5 indicating importance of the alarm, or -1 if the alarm indicates recovery from a previous failure.
-\end{itemize}
-The ``ERH\_ERRORS\_HSL1'' table, has one additional field:
-\begin{itemize}
- \item CLAZZ - Shows the type of system which has sent the alarm
-\end{itemize}
-The field ``EVENT\_TYPE'' can have one of the following values:
-\begin{itemize}
-  \item fieldElementAlarm - Alarm related to a field element
-  \item fieldElementFailure - Failure in a field element
-  \item operatorInformation - Information to the operator
-  \item imCpuAndCommunications - Related to IM CPU or IM communications
-  \item internalDiagnosis - Internal diagnosis of a system
-  \item operationsDiagnosisCommunications - Communication error in Operation and Diagnosis systems
-  \item ImFecVersions - IM or FEC version
-  \item internalTraces - Internal traces of a system
-  \item operatorCommandAnswer - Answer to an operator command
-  \item CommProblem - Undefined communication problem
-  \item Information - Information message: versions, etc.
-  \item CommunicationsAlarm - Procedures and processes to carry information from one point to other
-  \item QualityOfServiceAlarm - Loss of quality of service
-  \item ProcessingErrorAlarm - SW or processing error
-  \item EquipmentAlarm - Equipment failure
-  \item EnvironmentAlarm - Related to the environment where the system is located
-  \item other - Other
-\end{itemize}
+We have to identify which fields on our database corresponds to each of the variables we want to obtain. A direct relation is not possible, as details on \emph{what} has happened is registered in several fields of the database. This is necessary for maintenance purposes and better alarm handling in the maintenance station, but for our purposes we should identify \emph{what} has happened with a single variable.
+
+In our database, we have unique alarm identifiers for each of the alarms. For better handling and understanding of what is happening, we will use the textual identifier of the events to identify them. This identifier is gathered on the \emph{ADDITIONAL\_TEXT} field, and can be translated to a full comprehensive human-readable message by the maintenance station. Furthermore, there is additional data to fill in details about the message. For example, we can have an alarm such as ``Communication channel with \emph{X} down'', being \emph{X} an additional parameter saved in the \emph{ADDITIONAL\_INFOS} field. Here we can follow two different approaches: disregard the information about \emph{X}, and just treat it as a ``Channel down'' error; or easily build a compact representation including both variables, such as
 
 \section{Statistic analysis}
 \subsection{Alarm classification}

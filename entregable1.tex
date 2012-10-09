@@ -8,6 +8,8 @@
 
 \usepackage{graphicx}
 
+\usepackage[usenames,dvipsnames,table]{xcolor}
+
 %\usepackage{hyperref}
 %\usepackage{breakurl}
 
@@ -21,6 +23,10 @@
 \begin{document}
 \newcommand\litem[1]{\item{\bfseries #1 }}
 \renewcommand{\arraystretch}{1.5} %Makes tables less crammed
+\newcommand\headcell[1]{%
+  \multicolumn{1}{c|}{\cellcolor{MidnightBlue}\bfseries\sffamily\textcolor{white}{#1}}
+}
+
 %\renewcommand{\abstractname}{Executive Summary}
 %\begin{abstract}
 %
@@ -29,7 +35,7 @@
 % Set line spacing to 1.5
 \onehalfspacing
 
-\include{titlepage}
+\include{entregable1_titlepage}
 %\maketitle
 
 \pagenumbering{roman}
@@ -85,7 +91,8 @@ At the moment of writing this document, we count on data of three maintenance st
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|}
-\hline Name & Line type & Supervised systems \\ 
+\hline \headcell{Name} & \headcell{Line type} & \headcell{Supervised systems} \\ 
+\hline
 \hline Antequera & High Speed & SAM-E-L \\ 
 \hline Segovia & High Speed & ERTMS (levels 1 and 2) \\ 
 \hline Sevilla & Commuter & Diagnosis and Energy \\ 
@@ -103,7 +110,8 @@ SAM-E-L: Sistema de Ayuda al Mantenimiento para Ence (Local)\\
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
-\hline Maintenance Station & Number of events & Start date & End date & Period \\ 
+\hline \headcell{Maintenance Station} & \headcell{Number of events} & \headcell{Start date} & \headcell{End date} & \headcell{Period} \\ 
+\hline
 \hline Antequera & 185274 & 18-01-2010 & 31-05-2010 &  5 months \\ 
 \hline Segovia & 304408 & 30-11-2007 & 03-06-2009 &  1.5 years \\ 
 \hline Sevilla & 118026 & 17-05-2011 & 09-04-2012 &  1 year \\ 
@@ -188,7 +196,8 @@ Most data mining processes are usually focused on predicting the value of some v
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|}
-\hline Date & Time & Alarm \\ 
+\hline \headcell{Date} & \headcell{Time} & \headcell{Alarm} \\ 
+\hline
 \hline 01-01-2011 & 00:00 & Alarm A \\ 
 \hline 01-01-2011 & 00:30 & Alarm B \\ 
 \hline 01-01-2011 & 00:45 & Alarm B \\ 
@@ -209,7 +218,8 @@ Most data mining processes are usually focused on predicting the value of some v
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
-\hline Time & Alarm A & Alarm B & Alarm C \\ 
+\hline \headcell{Time} & \headcell{Alarm A} & \headcell{Alarm B} & \headcell{Alarm C} \\ 
+\hline
 \hline 0 & 1 & 2 & 0 \\ 
 \hline 1 & 2 & 0 & 2 \\ 
 \hline 2 & 2 & 1 & 0 \\ 
@@ -245,7 +255,8 @@ Table~\ref{tab:objectives_methods} contains a summary of learning objectives and
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|X|l|X|}
-\hline Goal & Priority & Method \\ 
+\hline \headcell{Goal} & \headcell{Priority} & \headcell{Method} \\ 
+\hline
 \hline Perform a preliminary statistical analysis to set the project grounds & Compulsory & Statistical analysis with R \\ 
 \hline Identify differences between maintenance stations & Compulsory & Statistical analysis with R \\ 
 \hline Obtain rules to predict alarms using data of other alarms occurrence & Compulsory & Data Mining algorithms with R \\ 
