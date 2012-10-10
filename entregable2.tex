@@ -14,7 +14,7 @@
 %\usepackage{breakurl}
 
 %opening
-%\title{Trainmining}
+%\title{Trainmining}a
 %\author{Grupo de Sistemas Inteligentes \\ Universidad Politécnica de Madrid}
 
 
@@ -36,15 +36,13 @@
 % Set line spacing to 1.5
 \onehalfspacing
 
-\include{entregable1_titlepage}
+\include{entregable2_titlepage}
 %\maketitle
 
 \pagenumbering{roman}
 \section*{Executive Summary}
 \addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
-This document describes the scope and potential outcomes of the project \emph{Trainmining}. This project is developed by Thales Spain in collaboration with the research group \emph{Grupo de Sistemas Inteligentes} (Intelligent Systems Group) of the Universidad Politécnica de Madrid. The goal of the project is the application of machine learning techniques for predicting alarms in the maintenance systems that have been developed by Thales Spain. Machine learning techniques will be based on historical data coming from Thales Spain railway maintenance system which operates in several railway lines troughout Spain. 
 
-The document provides a general overview of the railway maintenance system developed by Thales Spain, as well as a first insight in the available historical data and how it will be treated. In addition, the document describes potential learning goals for the application of machine learning techniques. Finally, the document describes which are the learning goals Thales Spain is more interested in, and details potential machine learning techniques to achieve them. The main learning goal is learning alarm prediction techniques, and their usage is illustrated with a use case. 
 
 \newpage
 \tableofcontents % indice de contenidos
@@ -145,7 +143,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
-  \hline \HeadCell{Field name} & \HeadCell{Description} \\
+  \hline \HeadCell{Event type} & \HeadCell{Description} \\
   \hline
   \hline fieldElementAlarm & Alarm related to a field element \\
   \hline fieldElementFailure & Failure in a field element \\
@@ -169,7 +167,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 \caption{Description of values for the field EVENT\_TYPE} \label{tab:field_event_type}
 \end{table}
 \clearpage
-\section{Reduced representation of alarms}
+\section{Reduced representation of alarms}\label{sec:reduced_alarms}
 In section~\ref{sec:database_description} we have seen a deep definition of all the tables characterising registered alarms. Each of these tables contain several fields, which in total makes an inconvenient large number of variables. While all of them are necessary for correct system function and maintenance purposes, not all of them will be necessary for us to work with alarms.
 
 In order to characterise an event, the main things we need to know can be reduced to three variables:
@@ -182,94 +180,155 @@ In order to characterise an event, the main things we need to know can be reduce
 In section~\ref{sec:database_description} we have seen other variables which can provide additional information which - although not essential - can be useful. Specifically, we think the following data can be of possible interest:
 
 \begin{itemize}
-\item How severe the event is
-\item Which type of event has happened
+\item How severe the event is (severity)
+\item Which type of event has happened (event type)
 \end{itemize}
 
 These variables can help us to classify alarms or give more importance to those which are more severe. As this information is already provided on given databases, we will keep it and use it for better alarm classification and filtering. However, none of them are essential in order to characterise alarms, as both of them give information which is already implicit in our previous \emph{``what has happened''} variable. Specifically, this information will be of great help in order to make a preliminary statistical insight on the events of the databases, for which a generalisation in terms of severity and category can help us have a better overview of the situation.
 
 We have to identify which fields on our database corresponds to each of the variables we want to obtain. A direct relation is not possible, as details on \emph{what} has happened is registered in several fields of the database. This is necessary for maintenance purposes and better alarm handling in the maintenance station, but for our purposes we should identify \emph{what} has happened with a single variable.
 
-In our database, we have unique alarm identifiers for each of the alarms. For better handling and understanding of what is happening, we will use the textual identifier of the events to identify them. This identifier is gathered on the \emph{ADDITIONAL\_TEXT} field, and can be translated to a full comprehensive human-readable message by the maintenance station. Furthermore, there is additional data to fill in details about the message. For example, we can have an alarm such as ``Communication channel with \emph{X} down'', being \emph{X} an additional parameter saved in the \emph{ADDITIONAL\_INFOS} field. Here we can follow two different approaches: disregard the information about \emph{X}, and just treat it as a ``Channel down'' error; or easily build a compact representation including both variables, such as
+In our database, we have unique alarm identifiers for each of the alarms. For better handling and understanding of what is happening, we will use the textual identifier of the events to identify them. This identifier is gathered on the \emph{ADDITIONAL\_TEXT} field, and can be translated to a full comprehensive human-readable message by the maintenance station. Furthermore, there is additional data to fill in details about the message. For example, we can have an alarm such as ``Communication channel with \emph{X} down'', being \emph{X} an additional parameter saved in the \emph{ADDITIONAL\_INFOS} field. Here we can follow two different approaches: disregard the information about \emph{X}, and just treat it as a ``Channel down'' error; or easily build a compact representation including both variables, such as ``channel.down|x''.
 
 \section{Statistic analysis}
-\subsection{Alarm classification}
-In order to have a better insight of the provided databases and the mentioned descriptions, a preliminary insight was made, quantitatively analysing some of the parameters which seemed more relevant for alarm definition. Specifically, the chosen parameters are the following:
+In order to obtain a first general insight of what has happened during the time comprised by our backup data, we will perform a high-level preliminary statistic analysis. In order to achieve a qualitative idea of the type of events, we will use the additional variables we mentioned in section~\ref{sec:reduced_alarms}: severity and event type. These variables provide an already given alarm classification of interest for maintenance operators.
 
-\begin{itemize}
- \item EVENT\_TYPE
- \item INVOKE\_TYPE
- \item DVNI\_ERRORCATEGORY (Error Category)
-\end{itemize}
+\subsection{Event type distribution}
+The first analysis we will perform consists on checking which event types appear in each maintenance station, and which percentage of the total amount of alarms corresponds to each of them. This will help us understand the nature of the events which are usually happening on our railway line.
 
-The proportion of each kind of alarms in each of the provided databases (Antequera, Camas, Segovia and Sevilla) is as follows:
-\begin{figure}[ht!]
+First of all we will obtain a list of all the types found in each of the stations. We already described in table~\ref{tab:field_event_type} all the possible values for this field, but depending on the diagnosis systems installed on each of the stations, a different subset of them will be used. The list of events for each of the stations is given in tables \ref{tab:field_event_type_antequera} (Antequera), \ref{tab:field_event_type_sevilla} (Sevilla) and \ref{tab:field_event_type_segovia} (Segovia).
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline
+  \hline fieldElementAlarm & Alarm related to a field element \\
+  \hline fieldElementFailure & Failure in a field element \\
+  \hline operatorInformation & Information to the operator \\
+  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
+  \hline internalDiagnosis & Internal diagnosis of a system \\
+  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
+  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
+  \hline
+\end{tabularx}
+\caption{Event types found in Antequera} \label{tab:field_event_type_antequera}
+\end{table}
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline
+  \hline fieldElementAlarm & Alarm related to a field element \\
+  \hline fieldElementFailure & Failure in a field element \\
+  \hline operatorInformation & Information to the operator \\
+  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
+  \hline internalDiagnosis & Internal diagnosis of a system \\
+  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
+  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
+  \hline Other & other \\
+  \hline
+\end{tabularx}
+\caption{Event types found in Sevilla} \label{tab:field_event_type_sevilla}
+\end{table}
+
+
+\begin{table}
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline
+  \hline CommProblem & Undefined communication problem \\
+  \hline Information & Information message: versions, etc. \\
+  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
+  \hline ProcessingErrorAlarm & SW or processing error \\
+  \hline EquipmentAlarm & Equipment failure \\
+  \hline EnvironmentAlarm & Related to the environment where the system is located \\
+  \hline
+\end{tabularx}
+\caption{Event types found in Segovia} \label{tab:field_event_type_segovia}
+\end{table}
+
+From these tables we can observe that alarm types in Antequera and Sevilla are the same (except for unclassified alarms in Sevilla marked as ``other''). From this we can infer that diagnosis systems in these two stations are the same or very similar, as confirmed by Thales' engineers. Segovia however presents a different - although also expectedly similar - set of alarm categories. This is an indicator of diagnosis systems being very different in Segovia than in the other two stations, as confirmed by Thales' engineers.
+
+For better overview of distribution of these alarm types, we will create charts of their respective percentages for each of the stations. These charts can be seen in figures \ref{fig:antequera_chart} (Antequera), \ref{fig:segovia_chart} (Segovia) and \ref{fig:sevilla_chart} (Sevilla).
+
+\begin{figure}[htb]
  \centering
  \includegraphics[width=\textwidth]{./img/antequera_graph.png}
  \caption{Alarm information for Antequera}
- \label{fig:anteq}
+ \label{fig:antequera_chart}
 \end{figure}
-\begin{figure}[ht!]
+\begin{figure}[htb]
  \centering
  \includegraphics[width=\textwidth]{./img/segovia_graph.png}
  \caption{Alarm information for Segovia}
- \label{fig:segovia}
+ \label{fig:segovia_chart}
 \end{figure}
-\begin{figure}[ht!]
+\begin{figure}[htb]
  \centering
  \includegraphics[width=\textwidth]{./img/sevilla_graph.png}
  \caption{Alarm information for Sevilla}
- \label{fig:sevilla}
+ \label{fig:sevilla_chart}
 \end{figure}
 
-In Sevilla, we observe an additional error category marked as ``other''. If we make a deeper insight on those errors, we find that is a group formed by 77 alarms of the same type.
+\clearpage
+
+We can see that in all of the stations, a single alarm type predominates among all of them. Specifically, we have a vast majority of communication alarms in Antequera and Segovia, and a majority of field element failure alarms in Sevilla. This is not surprising due to the considerable differences between all of them, but can become a problem as the other categories may be too small compared to these main ones when performing Data Mining techniques, obtaining less information - or none at all - from them.
+
+In this direction, it is possible that further actions are required in order to compensate these differences, and avoid that more frequent alarms overshadow the less frequent ones.
+
+\subsection{Daily correlation}
+In order to find further differences or similarities between the different stations, we will observe how alarm types are correlated to each others. That is, how frequent is to find alarms of two specific types happening together during the same short period. For a first insight, we will analyse correlation during daily observations. This correlation information will not be of immediate help in order to predict alarms, as predicting the most frequent alarm type given some conditions is of very little - if any - help. However, it will give us a first idea on how strongly alarms are related to each others.
+
+The result of this correlation is represented in figures \ref{fig:anteq_corr} (Antequera), \ref{fig:segovia_corr} (Segovia) and \ref{fig:sevilla_corr} (Sevilla).
+
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/antequera_corr.png}
+ \caption{Daily correlation for Antequera} \label{fig:anteq_corr}
+\end{figure}
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/segovia_corr.png}
+ \caption{Daily correlation for Segovia} \label{fig:segovia_corr}
+\end{figure}
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/sevilla_corr.png}
+ \caption{Daily correlation for Sevilla} \label{fig:sevilla_corr}
+\end{figure}
+
+\clearpage
+
+At first sight, we can affirm that these relations are different even in Sevilla and Antequera, which we found to have similar diagnosis systems. This indicates that, even with similar diagnosis systems, the systems conforming both lines are different. This is indeed confirmed by Thales' engineers, as Antequera station controls a high speed line, while Sevilla corresponds to a commuter line.
+
+Furthermore, we can see strong correlations in Sevilla (Field element failure and operator information) and Segovia (Communications alarms and processing error alarms). As we don't have deep information of the nature of these categories, we can't affirm that this high correlation is due to any causal relation. However, we observe that both these cases show high correlation for the type of alarm which is more frequent in each station, so uneven distribution of alarms might be the cause of this apparent relation between alarms.
+
+From this analysis we can conclude the significant differences in alarm relations between stations, confirming our first thoughts of impossibility of reducing the problem by generalising and merging data from different stations. Further analysis using specific alarm identifiers instead of categories will be needed to obtain relevant results.
 
 \subsubsection{Hourly timeline}
+As an additional first analysis, we wanted to overview the variation of alarm occurrence during the day. During a day, high differences in environment can be experimented which can affect systems in different ways. For instance, temperatures or train affluence can be very different from 4:00 AM to 1:00 PM. These differences can also be found during higher periods, for instance between weekdays and weekends, or between summer time and winter. To start with a specific observation period, we will perform a first analysis between day hours, leaving the other cases for further steps if considered adequate.
 
-In order to make a first approach to data analysis, we decided to analyse the alarms on a hourly distribution, checking which types of alarms are more likely to happen in different hours during the day. The result is the following:
+Charts with this analysis can be seen in figures \ref{fig:antequera_timeline} (Antequera), \ref{fig:segovia_timeline} (Segovia) and \ref{fig:sevilla_timeline} (Sevilla).
+
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/antequera_timeline.png}
+ \caption{Hourly distribution for Antequera (stacked)} \label{fig:antequera_timeline}
+\end{figure}
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/segovia_timeline.png}
+ \caption{Hourly distribution for Segovia (stacked)} \label{fig:segovia_timeline}
+\end{figure}
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/sevilla_timeline.png}
+ \caption{Hourly distribution for Sevilla (stacked)} \label{fig:sevilla_timeline}
+\end{figure}
 
 \clearpage
 
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/antequera_timeline.png}
- \caption{Hourly distribution for Antequera (stacked)}
-\end{figure}
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/segovia_timeline.png}
- \caption{Hourly distribution for Segovia (stacked)}
-\end{figure}
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/sevilla_timeline.png}
- \caption{Hourly distribution for Sevilla (stacked)}
-\end{figure}
 
-\clearpage
-
-\subsubsection{Daily correlation}
-
-We have also generated graphics for correlation between number of alarms of each type during the day, and occurrences of other types of alarms. The result is as follows:
-
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/antequera_corr.png}
- \caption{Daily correlation for Antequera}
- \label{fig:anteq_corr}
-\end{figure}
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/segovia_corr.png}
- \caption{Daily correlation for Segovia}
- \label{fig:segovia_corr}
-\end{figure}
-\begin{figure}[h!]
- \centering
- \includegraphics[height=0.4\textheight]{./img/sevilla_corr.png}
- \caption{Daily correlation for Sevilla}
- \label{fig:sevilla_corr}
-\end{figure}
 
 \clearpage
 
