@@ -24,7 +24,7 @@
 \newcommand\litem[1]{\item{\bfseries #1 }}
 \renewcommand{\arraystretch}{1.5} %Makes tables less crammed
 
-\newcommand\HeadCell[1]{%
+\newcommand\headcell[1]{%
   \multicolumn{1}{c|}{\cellcolor{MidnightBlue}\bfseries\sffamily\textcolor{white}{#1}}
 }
 
@@ -85,7 +85,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
- \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline \HeadCell{Field name} & \headcell{Description} \\
  \hline
  \hline DVNI\_ERRORNUMBER & Alarm identifier \\
  \hline DVNS\_ERRORTIME & Time-stamp for the alarm \\
@@ -98,7 +98,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
- \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline \headcell{Field name} & \headcell{Description} \\
  \hline
  \hline DVNI\_INSTALLATIONCODE & Installation identifier  \\
  \hline DVNI\_SYSTEMCODE & Type of system, as defined in the ``SG\_SYSTEMSGENERAL'' table \\ 
@@ -114,7 +114,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
- \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline \headcell{Field name} & \headcell{Description} \\
  \hline
  \hline IG\_NODO\_INSTALLATION & Identifier of the installation which is a node \\
  \hline DVNI\_FATHER\_INSTALLATION & Identifier of the parent installation \\
@@ -125,7 +125,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
- \hline \HeadCell{Field name} & \HeadCell{Description} \\
+ \hline \headcell{Field name} & \headcell{Description} \\
  \hline
  \hline DVNI\_ERRORNUMBER & Alarm identifier \\
  \hline MESSAGE\_ID & Unique alarm identifier \\
@@ -143,7 +143,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
-  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline \headcell{Event type} & \headcell{Description} \\
   \hline
   \hline fieldElementAlarm & Alarm related to a field element \\
   \hline fieldElementFailure & Failure in a field element \\
@@ -200,7 +200,7 @@ First of all we will obtain a list of all the types found in each of the station
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
-  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline \headcell{Event type} & \headcell{Description} \\
   \hline
   \hline fieldElementAlarm & Alarm related to a field element \\
   \hline fieldElementFailure & Failure in a field element \\
@@ -216,7 +216,7 @@ First of all we will obtain a list of all the types found in each of the station
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
-  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline \headcell{Event type} & \headcell{Description} \\
   \hline
   \hline fieldElementAlarm & Alarm related to a field element \\
   \hline fieldElementFailure & Failure in a field element \\
@@ -234,7 +234,7 @@ First of all we will obtain a list of all the types found in each of the station
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
-  \hline \HeadCell{Event type} & \HeadCell{Description} \\
+  \hline \headcell{Event type} & \headcell{Description} \\
   \hline
   \hline CommProblem & Undefined communication problem \\
   \hline Information & Information message: versions, etc. \\
@@ -305,8 +305,8 @@ Furthermore, we can see strong correlations in Sevilla (Field element failure an
 
 From this analysis we can conclude the significant differences in alarm relations between stations, confirming our first thoughts of impossibility of reducing the problem by generalising and merging data from different stations. Further analysis using specific alarm identifiers instead of categories will be needed to obtain relevant results.
 
-\subsubsection{Hourly timeline}
-As an additional first analysis, we wanted to overview the variation of alarm occurrence during the day. During a day, high differences in environment can be experimented which can affect systems in different ways. For instance, temperatures or train affluence can be very different from 4:00 AM to 1:00 PM. These differences can also be found during higher periods, for instance between weekdays and weekends, or between summer time and winter. To start with a specific observation period, we will perform a first analysis between day hours, leaving the other cases for further steps if considered adequate.
+\subsection{Hourly timeline}
+As an additional first analysis, we wanted to overview the variation of alarm occurrence during the day. During a day, high differences in environment can be experimented which can affect systems in different ways. For instance, temperatures or train affluence can be very different from 4:00 AM to 1:00 PM. These differences can also be found during higher periods, for instance between weekdays and weekends, or between summer time and winter. To start with a specific observation period, we will perform a first analysis between day hours, leaving the other cases for future stages if considered adequate.
 
 Charts with this analysis can be seen in figures \ref{fig:antequera_timeline} (Antequera), \ref{fig:segovia_timeline} (Segovia) and \ref{fig:sevilla_timeline} (Sevilla).
 
@@ -328,7 +328,77 @@ Charts with this analysis can be seen in figures \ref{fig:antequera_timeline} (A
 
 \clearpage
 
+\section{Data preprocessing}
+As we already mentioned, most data mining processes are usually focused on predicting the value of some variables given the value of the rest variables in a given observation. They work with discrete observations for which each of the variables is analysed or predicted. In our databases we have continuous observations, which need to be transformed into discrete observations.
 
+Depending on the specific application we are using, we can need to transform this data into two possible formats. The first one is the called \emph{basket format}. The most typical example usually used to explain it is a registry of clients of a shop which keeps lists of what the clients buy (hence the name). Therefore, for each observation (often called \emph{transactions} again as an analogy to clients buying in a shop) we will have a list of items happening during that observation (or bought in that transaction). It is important to note that we will keep the same number of variables as in our original data, only that we will stack several items in single entries to obtain discrete observations. It is also important to be careful with which variables we are stacking. While we need to combine all the alarms happening during the same period, it is important not to lose or combine the Installation value. As a result, time identifiers won't be unique in the whole transformed database, but the pair time identifier-installation identifier will.
+
+An example can be seen in tables \ref{tab:data_before_discret} and \ref{tab:basket_example}. Table~\ref{tab:data_before_discret} is an example of the original data, and table~\ref{tab:basket_example} is the equivalent data transformed into basket format.
+
+The second possible transformation is to represent the occurrence of each alarm with an additional variable. This means that we will need as many variables as the total number of possible different alarms in our system. Same as before, we must be careful to preserve data on installations, and create independent observations for each time slot and each installation. Each additional variable can represent the alarms in different ways. Either in a boolean sense (whether the alarms happens at least once or not at all) or the specific number of times the alarm has happened. In order not to lose information at this stage of processing, we will keep the specific amount of times each alarm has happened, which can be easily reduced to a boolean variable if appropriate for the application.
+
+This second case is indeed a more strict representation of the \emph{basket format}. While in basket format we just needed a single variable where we could add all the alarms in the form of a list, here we need to specify exactly the number of times all the variables have happened. Both of them are equivalent and we can easily convert data from one format to another, but as different algorithms will work specifically with one of each forms of representation, it's convenient to perform both transformations from original data and use each one accordingly.
+
+An example of this transformation can be seen in tables \ref{tab:data_before_discret} and \ref{tab:expanded_example}. Table~\ref{tab:data_before_discret} is an example of the original data, and table~\ref{tab:expanded_example} is the equivalent data discretised with additional variables.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline \headcell{Timestamp} & \headcell{Installation} & \headcell{Alarm} \\ 
+\hline
+\hline 01-01-2011 00:00 & 0 & Alarm A \\ 
+\hline 01-01-2011 00:30 & 0 & Alarm B \\ 
+\hline 01-01-2011 00:45 & 1 & Alarm B \\ 
+\hline 01-01-2011 01:10 & 0 & Alarm C \\ 
+\hline 01-01-2011 01:20 & 0 & Alarm A \\ 
+\hline 01-01-2011 01:22 & 0 & Alarm A \\
+\hline 01-01-2011 01:25 & 1 & Alarm C \\ 
+\hline 01-01-2011 01:30 & 1 & Alarm A \\ 
+\hline 01-01-2011 02:20 & 0 & Alarm A \\ 
+\hline 01-01-2011 02:30 & 1 & Alarm A \\ 
+\hline 01-01-2011 02:45 & 0 & Alarm B \\ 
+\hline ... & ... & ... \\ 
+\hline 
+\end{tabular} 
+\end{center} 
+\caption {Continuous observation. Example of alarms in log format.} \label{tab:data_before_discret} 
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline \headcell{Time} & \headcell{Installation} & \headcell{Alarms} \\ 
+\hline
+\hline 0 & 0 & A, B \\ 
+\hline 0 & 1 & B \\ 
+\hline 1 & 0 & C, A, A \\ 
+\hline 1 & 1 & C, A \\ 
+\hline 2 & 0 & A, B \\ 
+\hline 2 & 1 & A \\ 
+\hline ... & ... & ... \\ 
+\hline 
+\end{tabular} 
+\end{center}
+\caption{An example of discretised data in basket format.} \label{tab:basket_example}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline \headcell{Time} & \headcell{Installation} & \headcell{Alarm A} & \headcell{Alarm B} & \headcell{Alarm C} \\ 
+\hline 
+\hline 0 & 0 & 1 & 1 & 0 \\ 
+\hline 0 & 1 & 0 & 1 & 0 \\ 
+\hline 1 & 0 & 2 & 0 & 1 \\ 
+\hline 1 & 1 & 1 & 0 & 1 \\ 
+\hline 2 & 0 & 1 & 1 & 0 \\ 
+\hline 2 & 1 & 1 & 0 & 0 \\ 
+\hline ... & ... & ... & ... & ... \\ 
+\hline 
+\end{tabular} 
+\end{center} 
+\caption {Example of discretised data} \label{tab:expanded_example} 
+\end{table}
 
 \clearpage
 
