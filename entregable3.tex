@@ -1,0 +1,128 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+
+% Allow the change of line spacing
+\usepackage{setspace}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames,table]{xcolor}
+
+%\usepackage{hyperref}
+%\usepackage{breakurl}
+
+%opening
+%\title{Trainmining}
+%\author{Grupo de Sistemas Inteligentes \\ Universidad Politécnica de Madrid}
+
+
+\begin{document}
+\newcommand\litem[1]{\item{\bfseries #1 }}
+\renewcommand{\arraystretch}{1.5} %Makes tables less crammed
+
+\newcommand\headcell[1]{%
+  \multicolumn{1}{c|}{\cellcolor{MidnightBlue}\bfseries\sffamily\textcolor{white}{#1}}
+}
+
+%\renewcommand{\abstractname}{Executive Summary}
+%\begin{abstract}
+%
+%\end{abstract}
+
+% Set line spacing to 1.5
+\onehalfspacing
+
+\include{entregable2_titlepage}
+%\maketitle
+
+\pagenumbering{roman}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
+
+
+\newpage
+\tableofcontents % indice de contenidos
+\addcontentsline{toc}{section}{Contents} % para que aparezca en el indice de 
+\cleardoublepage
+\addcontentsline{toc}{section}{List of Figures} % para que aparezca en el indice de contenidos
+\listoffigures % indice de figuras
+
+\cleardoublepage
+\addcontentsline{toc}{section}{List of tables} % para que aparezca en el indice de contenidos
+\listoftables % indice de tablas
+\cleardoublepage
+
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Evaluation criteria}
+The predictive information obtained in the data mining process, will lead to the implementation of systems which will give us a prediction using current events as its input. This prediction will be given in the form of an alarm or set of alarms, which are likely to be raised within a given prediction period. In this section we will approach the problem of \emph{evaluation} of this predictive information.
+
+As a first thought, it might seem appropriate to evaluate our predictions by how true they actually are. We can measure the \emph{accuracy} of a prediction rule system easily by checking how often it becomes true and how often it does not. This is an important factor to take into account, but is however not completely significant of the overall quality of the system. In a limit case in which we only attained a trivial but highly accurate rule which gives valid but trivial predictions all the times, we would have an accuracy of 100\%, while the overall quality of the system would be none. We must actually check not only the accuracy of our predictions, but also their relevance against the whole situation.
+
+Therefore, we will need two different evaluation parameters: one related to the accuracy of our predictions, and other related to the fraction of events we are able to predict\cite{torgo2003data}. In first place, we will define \emph{precision} as the fraction of our predictions which are accurate. In the case of evaluating a rule against a test set, $P_{accurate}$ would be the number of times when both the antecedent and consequent of the given rule have happened within the stipulated time window; while $P_{total}$ would be the number of times when the antecedent of the given rule has happened, whether the consequent has or hasn't happened. Prediction can be as well calculated for a whole rule set, or for any kind of system which gives a predicted event based on other input events.
+
+\begin{equation}
+Prec_i = \dfrac{ P_{i, accurate}}{ P_{i, total} }
+\end{equation}
+
+On the other hand, we will define \emph{recall} as the relation between events which have successfully been predicted by our system ($E_{predicted}$) and the total number of events ($E_{total}$). 
+
+\begin{equation}
+Rec_i = \dfrac{ E_{i, predicted}}{ E_{i, total} }
+\end{equation}
+
+Notice that the number of events which have been predicted ($E_{predicted}$) is, in fact, the number of accurate predictions as calculated in the definition of \emph{precision}, ($P_{accurate}$)
+
+In other words, precision is the ratio between accurate predictions and the total number of predictions; while recall is the ratio between accurate predictions and the total number of events.
+
+It is important to notice that in our context, an event can't be \emph{wrongly} predicted. Our prediction can be either true or false, but if we make a prediction of the type $\{A, B\} \longrightarrow \{C\}$ and instead we observe that $\{A, B\} \longrightarrow \{D\}$; it does not mean in any way that we predicted C instead of D, but that our prediction of C was false and we did not predict D. As a result, some other tools generally used to complement values of precision and recall (such as \emph{confusion matrices}) cannot be applied in our case.
+
+Taking a further step, we can merge both indicators in a single one, obtaining a single indicator for a much easier evaluation. Precision and recall are often merged in the called \emph{F-measure}, defined as:
+\begin{equation}
+F = \dfrac{(\beta^{2}+1) \cdot Prec \cdot Rec}{\beta^{2} \cdot Prec+Rec}
+\end{equation}
+where $\beta\in [0,1]$ balances the importance between recall and precision.
+
+
+\section{Validation}
+Once the data mining process has been successfully performed, it is of essential importance to \emph{validate} the obtained results. This is, once we have learnt to make predictions based on observation of events, we must actually test how good our predictions are. As we count on a vast amount of data logs, we can easily check our predictions against this historic data. However, if we do this on the same data we have used to obtain this knowledge (our \emph{learning set}) we will obviously obtain extremely good results, as we have already learnt all the patterns happening on that exact data. If we had an ideal, infinite data set with \emph{all} the possible situations that can ever happen in our system, we could have learnt absolutely every possible prediction to be made on the system and no future event could be \emph{unexpected} to our new prediction abilities. However, in real systems this is not the case, and it is very likely that patterns and characteristics of the systems vary along time. 
+
+Training our system over a single large set of data can lead to \emph{overfitting}. This happens when our predictive knowledge becomes extremely accurate for the set we have been training on, but performs poorly on any other set of events not contained on our learning set.
+
+In order to make a proper validation of the obtained knowledge, we must separate our data in different sets. One of them will be the \emph{learning set} -- over which we will work to obtain our predictive knowledge -- and the other will be used as a \emph{testing set} -- on which we will test our predictive abilities. This way we will obtain a better validation of our predictive knowledge, as the characteristics of the testing set were not taken into account on the learning process, tentatively the same as for any future set of events.
+
+Cross validation\cite{han2006data}
+
+
+Obtain k equally sized and
+random subsets of the training data. For each of these k subsets, build a model
+using the remaining k −1 sets and evaluate this model on the k th subset. Store
+the performance of the model and repeat this process for all remaining subsets.
+In the end, we have k performance measures, all obtained by testing a model
+on data not used for its construction, and that is the key issue. The k -fold
+cross-validation estimate is the average of these k measures. A common choice
+for k is 10. Sometimes we even repeat the overall k-fold CV process several
+times to get even more reliable estimates.
+In general, we can say that when facing a predictive task, we have to make
+the following decisions:
+• Select the alternative models to consider (the models can actually be
+alternative settings of the same algorithm) for the predictive task(s) we
+want to address.
+• Select the evaluation metrics that will be used to compare the models.
+• Choose the experimental methodology for obtaining reliable estimates
+of these metrics.
+
+
+
+
+
+
+\clearpage
+
+\bibliographystyle{plain} 
+\bibliography{datamining}
+
+\end{document}
+
+
