@@ -92,27 +92,13 @@ Training our system over a single large set of data can lead to \emph{overfittin
 
 In order to make a proper validation of the obtained knowledge, we must separate our data in different sets. One of them will be the \emph{learning set} -- over which we will work to obtain our predictive knowledge -- and the other will be used as a \emph{testing set} -- on which we will test our predictive abilities. This way we will obtain a better validation of our predictive knowledge, as the characteristics of the testing set were not taken into account on the learning process, tentatively the same as for any future set of events.
 
+In order to address this problem, one of the most used methods is the \textit{k}-fold cross-validation (\textit{k}-fold CV) method. This method consists on dividing the whole data set in \textit{k} subsets of equal sizes, use \textit{k-1} of them as the learning set and the \textit{k}th one as the testing set. Performance results are stored for those specific learning and testing sets and the whole process is repeated a total of \textit{k} times, until all the possible combinations of subsets into the learning set and testing set are obtained. A common value for \textit{k} is 10.
+
+With this process, we obtain a total of \textit{k} performance testing results for our model. The important point is that all of them have been tested on sets which were not used for their construction. The overall performance measure is obtained as the arithmetic mean of all the results.
+
+In some cases, we can even randomize the division of the data into subsets, obtaining different subsets for each process of \textit{k}-fold CV we perform. In our case, however, we are limited in this direction by the nature of our data, as it is very important to preserve sequential information of our data. Our subsets must therefore be conformed of contiguous observations, and cannot be conformed of randomly selected samples.
+
 Cross validation\cite{han2006data}
-
-
-Obtain k equally sized and
-random subsets of the training data. For each of these k subsets, build a model
-using the remaining k −1 sets and evaluate this model on the k th subset. Store
-the performance of the model and repeat this process for all remaining subsets.
-In the end, we have k performance measures, all obtained by testing a model
-on data not used for its construction, and that is the key issue. The k -fold
-cross-validation estimate is the average of these k measures. A common choice
-for k is 10. Sometimes we even repeat the overall k-fold CV process several
-times to get even more reliable estimates.
-In general, we can say that when facing a predictive task, we have to make
-the following decisions:
-• Select the alternative models to consider (the models can actually be
-alternative settings of the same algorithm) for the predictive task(s) we
-want to address.
-• Select the evaluation metrics that will be used to compare the models.
-• Choose the experimental methodology for obtaining reliable estimates
-of these metrics.
-
 
 
 
