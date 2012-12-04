@@ -32,7 +32,7 @@
 % Set line spacing to 1.5
 \onehalfspacing
 
-\include{entregable2_titlepage}
+\include{entregable3_titlepage}
 %\maketitle
 
 \pagenumbering{roman}
@@ -54,6 +54,43 @@
 
 \setcounter{page}{1}
 \pagenumbering{arabic}
+
+\section{Data mining procedure}
+In previous stages of our project we have performed preliminary analysis on our data (mostly statistical) as well as the necessary preprocessing to apply different learning techniques in the following stages. Once we have completed these tasks, it is now time to perform the Data Mining techniques from which the actual knowledge will be obtained.
+
+As we already mentioned, there are different groups in which we can categorize most of Data Mining procedures:
+
+\begin{enumerate}
+ \litem{Classification:} Learning a function that maps an item into predefined classes.
+ \litem{Regression:} Learning a function that maps an item to a predicted variable.
+ \litem{Segmentation:} Identifying a set of clusters to categorise the data.
+ \litem{Summarization:} Finding a compact description for the data.
+ \litem{Association:} Finding significant dependencies between different variables.\cite{Zhao2003association}.
+ \litem{Sequence analysis:} Finding frequent sequences or episodes in data~\cite{zhao2003sequential,weiss2002predicting}.
+\end{enumerate}
+
+Three of these categories can be useful for our learning objectives. \emph{Sequence analysis} seems the most immediately appropriate category in which our objectives might fall -- we have a large amount of sequential data from which we want to obtain patterns which might be useful to make predictions in the future. From these obtained patterns, we may be able to obtain \emph{association} rules -- obtain antecedent-consequent pairs from frequent sequences which would associate occurrence of alarms in a given period with the occurrence of other alarms in any other future period. 
+
+Alternatively, we can convert our problem into a \emph{classification} task by modelling the alarms of the current period as variables, and the possible alarms for the prediction period as categories to classify our situation into.
+
+The most immediate and convenient (in terms of later implementation and integration) for us is the first approach: sequential analysis from which we will obtain association rules.
+
+\subsection{Mining frequent sequences}
+The first step for our chosen approach is to find frequent sequences in our datasets. Frequent sequences will be good candidates from which we can be able to obtain association rules -- if there is an unknown causal relation between two events, they will appear together considerably often. Several algorithms have been developed in the past in order to approach this task of finding frequent sequences. Some examples are the \emph{GSB} algorithm and the \emph{SPADE} algorithm, being the later an alternative to the first with better performance and results.
+
+The procedure of finding frequent sequences in a dataset mainly consists on an iterative analysis of all the possible combinations of elements of the database in sequences. For example, the GSB algorithm can be roughly described as follows:
+
+\begin{enumerate}
+\item All the possible items (events) of the database are counted. These elements can be seen as sequences of length 1, which will be subsequences of any other larger sequence.
+\item All the possible length 2 candidates are generated, as combination of length 1 sequences
+\item The database is scanned to calculate the support of generated length 2 candidates
+\item Length 3 candidates are generated as addition of length 1 sequences to length 2 sequences whose support is higher than a given minimum
+\item The process is repeated till no candidates have high enough support
+\end{enumerate}
+
+The support of a sequence is calculated as the number of times it happens in our dataset. The support is usually expressed as a percentage of the whole amount of sequences in the database, but it is important to note that this parameter is not related in any way with the confidence or precision of any prediction we might do with the given pattern. A deeper approach on this issue will be described later in this document.
+
+
 
 \section{Evaluation criteria}
 The predictive information obtained in the data mining process, will lead to the implementation of systems which will give us a prediction using current events as its input. This prediction will be given in the form of an alarm or set of alarms, which are likely to be raised within a given prediction period. In this section we will approach the problem of \emph{evaluation} of this predictive information.
@@ -88,20 +125,17 @@ where $\beta\in [0,1]$ balances the importance between recall and precision.
 \section{Validation}
 Once the data mining process has been successfully performed, it is of essential importance to \emph{validate} the obtained results. This is, once we have learnt to make predictions based on observation of events, we must actually test how good our predictions are. As we count on a vast amount of data logs, we can easily check our predictions against this historic data. However, if we do this on the same data we have used to obtain this knowledge (our \emph{learning set}) we will obviously obtain extremely good results, as we have already learnt all the patterns happening on that exact data. If we had an ideal, infinite data set with \emph{all} the possible situations that can ever happen in our system, we could have learnt absolutely every possible prediction to be made on the system and no future event could be \emph{unexpected} to our new prediction abilities. However, in real systems this is not the case, and it is very likely that patterns and characteristics of the systems vary along time. 
 
-Training our system over a single large set of data can lead to \emph{overfitting}. This happens when our predictive knowledge becomes extremely accurate for the set we have been training on, but performs poorly on any other set of events not contained on our learning set.
+Additionally, training our system over a single large set of data can lead to \emph{overfitting}. This happens when our predictive knowledge becomes extremely accurate for the set we have been training on, but performs poorly on any other set of events not contained on our learning set. It is important to avoid overfitting by performing learning procedures in a way that not our whole amount of data available is used at the same time. In this direction, the usage of very large data sets for learning procedures can be very inconvenient. In one hand we might be learning patterns which are exclusive to the specific period we are studying (for instance, we may be trying to obtain knowledge from logs from a specific year which we intend to use for forthcoming years), and when we validate this information, we will obtain unrealistic good performance measures.
 
-In order to make a proper validation of the obtained knowledge, we must separate our data in different sets. One of them will be the \emph{learning set} -- over which we will work to obtain our predictive knowledge -- and the other will be used as a \emph{testing set} -- on which we will test our predictive abilities. This way we will obtain a better validation of our predictive knowledge, as the characteristics of the testing set were not taken into account on the learning process, tentatively the same as for any future set of events.
+In order to make a proper validation of the obtained knowledge, we must separate our data in different sets. One of them will be the \emph{learning set} -- over which we will work to obtain our predictive knowledge -- and the other will be used as a \emph{testing set} -- on which we will test our predictive abilities. This way we will obtain a better validation of our predictive knowledge, as the characteristics of the testing set were not taken into account on the learning process, as  would happen for any future set of events.
 
-In order to address this problem, one of the most used methods is the \textit{k}-fold cross-validation (\textit{k}-fold CV) method. This method consists on dividing the whole data set in \textit{k} subsets of equal sizes, use \textit{k-1} of them as the learning set and the \textit{k}th one as the testing set. Performance results are stored for those specific learning and testing sets and the whole process is repeated a total of \textit{k} times, until all the possible combinations of subsets into the learning set and testing set are obtained. A common value for \textit{k} is 10.
+In order to address this problem, one of the most used methods is the \textit{k}-fold cross-validation (\textit{k}-fold CV) method. This method consists on dividing the whole data set in \textit{k} subsets of equal sizes, using \textit{k-1} of them as the learning set and the \textit{k}th one as the testing set. Performance results are stored for those specific learning and testing sets and the whole process is repeated a total of \textit{k} times, until all the possible learning sets/testing sets combinations are obtained.
 
-With this process, we obtain a total of \textit{k} performance testing results for our model. The important point is that all of them have been tested on sets which were not used for their construction. The overall performance measure is obtained as the arithmetic mean of all the results.
+With this process, we obtain a total of \textit{k} performance testing results for our model. The important point is that all of them have been tested on sets which were not used for their construction. The overall performance measure is obtained as the arithmetic mean of all the individual performance results.
 
-In some cases, we can even randomize the division of the data into subsets, obtaining different subsets for each process of \textit{k}-fold CV we perform. In our case, however, we are limited in this direction by the nature of our data, as it is very important to preserve sequential information of our data. Our subsets must therefore be conformed of contiguous observations, and cannot be conformed of randomly selected samples.
+In some cases, we can even randomize the division of the data into subsets, obtaining different subsets for each process of \textit{k}-fold CV we perform. In our case, however, we are limited in this direction by the nature of our data, as it is very important to preserve sequential information of our data. Our subsets must therefore be conformed of contiguous observations, and cannot be randomized between different temporal subsamples.
 
-Cross validation\cite{han2006data}
-
-
-
+A commonly used value for \textit{k} is 10. As in our case we will generally work with data sets comprising about a year of historic data, this division will provide learning sets of about 9 months and testing sets of about 1 month, which reasonable when validating predictions in terms of days.
 
 
 \clearpage
