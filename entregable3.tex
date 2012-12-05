@@ -73,9 +73,15 @@ Three of these categories can be useful for our learning objectives. \emph{Seque
 
 Alternatively, we can convert our problem into a \emph{classification} task by modelling the alarms of the current period as variables, and the possible alarms for the prediction period as categories to classify our situation into.
 
-The most immediate and convenient (in terms of later implementation and integration) for us is the first approach: sequential analysis from which we will obtain association rules.
+The most immediate and convenient (in terms of later implementation and integration) for us is the first approach: sequential analysis from which we will obtain association rules. The whole procedure comprises three main steps:
 
-\subsection{Mining frequent sequences}
+First of all we must obtain all potential sequential information (patterns) from our database, as mentioned. These sequences will be of the form $\{A, B\} \longrightarrow \{C, D\} \longrightarrow \{E, F\}$ and will serve as a basis to build candidate \emph{association rules}. This step is explained with further details on section~\ref{sec:mining_sequences}.
+
+Using the frequent sequences obtained from the first step, we can build \emph{candidate association rules}. Candidate association rules are of the form $\{A, B\} \xrightarrow{T} \{C\}$. It is important to notice that in these rules we are putting additional temporal information (a distance of T between terms). This temporal information is not implicit in our previous temporal sequences, but can be inferred from the conditions used on the process to obtain them. This will be explained in detail in section~\ref{sec:assoc_rules}.
+
+Finally, we must check which of these \emph{candidate association rules} are actually good predictive rules, and obtain a precise measure of \emph{how good} they are. Specifically, we will measure the \emph{certainty} (precision) of the predictions made by using these rules and the \emph{amount of events} (recall) they are able to predict. This step will be explained in detail in section~\ref{sec:validation_evaluation}.
+
+\section{Mining frequent sequences}\label{sec:mining_sequences}
 The first step for our chosen approach is to find frequent sequences in our datasets. Frequent sequences will be good candidates from which we can be able to obtain association rules -- if there is an unknown causal relation between two events, they will appear together considerably often. Several algorithms have been developed in the past in order to approach this task of finding frequent sequences. Some examples are the \emph{GSB} algorithm and the \emph{SPADE} algorithm, being the later an alternative to the first with better performance and results.
 
 The procedure of finding frequent sequences in a dataset mainly consists on an iterative analysis of all the possible combinations of elements of the database in sequences. For example, the GSB algorithm can be roughly described as follows:
@@ -90,14 +96,103 @@ The procedure of finding frequent sequences in a dataset mainly consists on an i
 
 The support of a sequence is calculated as the number of times it happens in our dataset. The support is usually expressed as a percentage of the whole amount of sequences in the database, but it is important to note that this parameter is not related in any way with the confidence or precision of any prediction we might do with the given pattern. A deeper approach on this issue will be described later in this document.
 
+More information on GSB and SPADE algorithms can be found in \cite{zaki2001spade, zhao2003sequential, srikant1996mining}. Although It is not our priority now to study these algorithms in depth, previous work shows a better performance for SPADE than for GSB, and therefore it will be our algorithm of choice for our work. Furthermore, SPADE implementations are conveniently available in R libraries, which will allow us to easily execute the algorithm on our datasets.
 
+\subsection{Defining constraints}
+One of the main problems we find when we look for frequent sequences in our database, is that not any sequence -- although frequent -- is useful for our purposes. In the end our goal is to make predictions, for which obtaining these frequent patterns is useful. However, our project context -- and sometimes common sense -- may put additional conditions on \emph{which} kind of predictions are useful; and therefore, \emph{which} kind of patterns we must look for.
+
+For instance, due to the characteristics of our systems, it might not be possible to perform maintenance tasks in short periods of time. Sequences showing us that \emph{A} always breaks within one hour after \emph{B} breaking might not be useful even if we can obtain a very high certainty of that prediction. If we need to buy new pieces to fix B, and those pieces are usually delivered in terms of weeks, knowing that \emph{B} will break one hour before it breaks would not give us any advantage over waiting for it to break and notice without any prediction.
+
+In other words: we need to define temporal constraints in order to obtain sensible predictions\cite{zaki2000cspade}. These constraints are the following:
+
+\begin{description}
+\item[Observation time.] We must define for how long we want to take events into account. For example, our predictions for tomorrow will be most likely be made taking into account today's events, as those from last week are less likely to be related with those happening in the short future.
+\item[Minimum gap.] This is the minimum amount of time in which we want to predict events. For instance, a gap of 0 would result in predictions for events simultaneous to the observed ones, while a gap of 1 would result in predictions only for the following observation periods.
+\item[Maximum gap.] The maximum amount of observations between events in our sequences. By fixing it to the same amount as minimum gap we can obtain sequences with a fixed gap between events.
+\item[Maximum window.] This is the maximum temporal length for our sequences. It is important to stress that this is the length of the whole sequence, while the gap is the separation of events within a sequence.
+\end{description}
+
+Given these constraints, we have sequences with the following structure:
+
+$$\{A, B\} \xrightarrow{T_1} \{C, D\} \xrightarrow{T_2} \{E, F\}$$
+
+Where $mingap \leq \{T_1, T_2\} \leq maxgap$, and $T_1+T_2 \leq maxwin$. It is important to remark that these temporal conditions are not inherent to the sequences obtained by the SPADE algorithm. As we mentioned in section \ref{sec:mining_sequences}, sequences are built from all the possible combination of events, and then their support is calculated by checking how many times that sequence appears in the database. It is in support calculation where these constraints apply, but the candidate sequences do not contain any temporal information at all. We will only know that their values will be comprised within the ranges we have defined.
+
+In this sequence we have three terms with two events each. In order to build association rules, it is very convenient to limit the number of terms to two -- a single \emph{antecedent} and a single \emph{consequent}. Furthermore, it is very convenient to limit the number of events to one, in order to make individual predictions for each of the events (which may have, for example, different certainties). 
+
+Therefore, the previous example sequence can be divided in three subsequences of two terms:
+$$\{A, B\} \longrightarrow \{C, D\}$$
+$$\{C, D\} \longrightarrow \{E, F\}$$
+$$\{A, B\} \longrightarrow \{E, F\}$$
+
+And, furthermore, each of them can be divided into two subsequences with only one item in the last term:
+
+$$\{A, B\} \longrightarrow \{C\}$$
+$$\{A, B\} \longrightarrow \{D\}$$
+$$\{C, D\} \longrightarrow \{E\}$$
+$$\{C, D\} \longrightarrow \{F\}$$
+$$\{A, B\} \longrightarrow \{E\}$$
+$$\{A, B\} \longrightarrow \{F\}$$
+
+These sequences are in fact subsequences of the original one, and therefore their individual support values will always be higher than the support original one. This means that these subsequences will already have been obtained as frequent sequences by the SPADE algorithm, without the need of performing division on the longer sequences. As a result, we can simply drop the sequences whose length or complexity is inconvenient for our purposes, as their shorter subsequences will be already found by SPADE.
+
+This results in additional length constraints:
+\begin{description}
+\item[Maximum terms.] The maximum number of terms in the sequence. In our previous example, we should have set it to \emph{2}.
+\item[Maximum items per term.] This condition defines the maximum amount of items in each of the terms of the sequence. This is \emph{not exactly} what we wanted to achieve with our second division of sequences, as we only want to apply this condition to the last term and not to all of them. In our previous example, we would have to set this limit to 1 but only for the last term of the sequence.
+\end{description}
+
+Both these groups of constraints must be applied within the process of the algorithms which will obtain the frequent sequences from our database. The length constraints will limit the construction of \emph{candidate sequences} and the temporal constraints will put conditions to the calculation of \emph{sequence support}. Its implementation must therefore be made into the sequence mining algorithms.
+
+An extended version of the SPADE algorithm has been developed to include some of these constraints which were not contemplated by the original SPADE implementation. The \emph{cSPADE} algorithm\cite{zaki2000cspade,wu2010sequential} provides an implementation taking into account all these mentioned conditions. It is available as an R implementation under the library \emph{arulessequences}\cite{hahsler2011arules}. The only constraint which we are not directly able to define as a cSPADE condition is the maximum number of items in the last term of the sequence, as the condition imposable as a cSPADE parameter is a maximum number of items for \emph{all} the terms. This will have to be addressed at the time of building the association rules, as we will see in section \ref{sec:assoc_rules}.
+
+\section{Building candidate association rules} \label{sec:assoc_rules}
+The next step in our knowledge discovery process is the construction of potential rules which could be applied to the prediction of events in our system. As we have mentioned several times, a rule is a sentence of the form ${A} \xrightarrow{T} {B} [p]$, where \emph{A} is the antecedent (maybe containing several events), B is the consequent (also maybe containing several events), \emph{T} is the time period between \emph{A} and \emph{B}, and \emph{p} is the probability of this rule being true.
+
+In order to transform our already available set of frequent sequences into rules of said form, first we must build all the candidate rules which can result from the obtained sequences. As we mentioned in section \ref{sec:mining_sequences}, \emph{cSPADE} allows us to define certain constraints in order to obtain suitable sequences to build rules afterwards. Said constraints are:
+
+\begin{itemize}
+\item Maximum of two terms per sequence. We will set this to \emph{2}, as mentioned in section \ref{sec:mining_sequences}.
+\item Gap between terms (\emph{T}) comprised between mingap and maxgap. As we are working only with two terms, this defines also the maximum length for the sequence.
+\item Maximum number of events in a term. We cannot however define independent limits for each of the terms, as we would like
+\end{itemize}
+
+It is important to remember that our data is, at this point, divided into \emph{observations}. Observations are discrete periods of time in which we group events. When we speak of \emph{gaps} and \emph{temporal lengths} we are always speaking in terms of observations, and therefore the real temporal conditions will depend on the length we defined for our observations.
+
+In order to achieve an exact value for T, instead of having to work with ranges, we will set the maximum gap and the minimum gap to the same value. If we want, however, to find rules for a larger range of T values, we can iteratively repeat this process increasing its value. This will provide us with independent rules for each value of T, which will allow us to evaluate and validate them independently, resulting in better results. 
+
+We will therefore have sequences of the following form:
+
+$$\{A, B\} \longrightarrow \{C, D\}$$
+
+As we mentioned before, we will divide these into subsequences with a single item on the last term of the sequence. More exactly, we will disregard sequences that do not comply this condition, as their valid subsequences will also have been detected by cSPADE. The result will be the following:
+
+$$\{A, B\} \longrightarrow \{C\}$$
+$$\{A, B\} \longrightarrow \{D\}$$
+
+In order to convert these sequences into rules, we simply need to assign them a \emph{T} value and an associate probability \emph{p}. The definition of \emph{T} is quite immediate, as we have defined exactly the gap we want to have in sequences by setting maxgap and mingap to the same value. The probability \emph{p} will be calculated in the next stage, and will be the factor deciding whether \emph{candidate rules} become actual \emph{prediction rules} or not (as well as a very important performance factor and predictive information).
+
+At this step, we must therefore only gather those sequences which fall into our conditions and give them a temporal value \emph{T}. Simple as that, the process mainly consists on subsetting tasks performed with simple R scripts, which will give us the following:
+
+$$\{A, B\} \xrightarrow{T} \{C\}$$
+$$\{A, B\} \xrightarrow{T} \{D\}$$
+
+
+\section{Validation and evaluation} \label{sec:validation_evaluation}
+
+% Ahora tenemos que ver cuales de las candidatas se pueden usar realmente como reglas
+% Enfoque: Tomar todas las reglas como finales y calcular su performance.
+% Luego simplemente nos quedamos con aquellas reglas que tengan mejor performance
+% Primero hay que definir los parametros de performance
+% Lueog hay que definir el procedimiento de evaluacion
+% Al final, obtenemos un conjunto de reglas que han demostrado una buena performance, y de paso tenemos la probabilidad para cada regla
 
 \section{Evaluation criteria}
 The predictive information obtained in the data mining process, will lead to the implementation of systems which will give us a prediction using current events as its input. This prediction will be given in the form of an alarm or set of alarms, which are likely to be raised within a given prediction period. In this section we will approach the problem of \emph{evaluation} of this predictive information.
 
 As a first thought, it might seem appropriate to evaluate our predictions by how true they actually are. We can measure the \emph{accuracy} of a prediction rule system easily by checking how often it becomes true and how often it does not. This is an important factor to take into account, but is however not completely significant of the overall quality of the system. In a limit case in which we only attained a trivial but highly accurate rule which gives valid but trivial predictions all the times, we would have an accuracy of 100\%, while the overall quality of the system would be none. We must actually check not only the accuracy of our predictions, but also their relevance against the whole situation.
 
-Therefore, we will need two different evaluation parameters: one related to the accuracy of our predictions, and other related to the fraction of events we are able to predict\cite{torgo2003data}. In first place, we will define \emph{precision} as the fraction of our predictions which are accurate. In the case of evaluating a rule against a test set, $P_{accurate}$ would be the number of times when both the antecedent and consequent of the given rule have happened within the stipulated time window; while $P_{total}$ would be the number of times when the antecedent of the given rule has happened, whether the consequent has or hasn't happened. Prediction can be as well calculated for a whole rule set, or for any kind of system which gives a predicted event based on other input events.
+Therefore, we will need two different evaluation parameters: one related to the accuracy of our predictions, and other related to the fraction of events we are able to predict\cite{torgo2003data}. In first place, we will define \emph{precision} as the fraction of our predictions which are accurate. In the case of evaluating a rule against a test set, $P_{accurate}$ would be the number of times when both the antecedent and consequent of the given rule have happened within the stipulated time window; while $P_{total}$ would be the number of times when the antecedent of the given rule has happened, whether the consequent has or has not happened. Prediction can be as well calculated for a whole rule set, or for any kind of system which gives a predicted event based on other input events.
 
 \begin{equation}
 Prec_i = \dfrac{ P_{i, accurate}}{ P_{i, total} }
