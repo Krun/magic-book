@@ -233,6 +233,100 @@ In some cases, we can even randomize the division of the data into subsets, obta
 A commonly used value for \textit{k} is 10. As in our case we will generally work with data sets comprising about a year of historic data, this division will provide learning sets of about 9 months and testing sets of about 1 month, which reasonable when validating predictions in terms of days.
 
 
+\section{Model comparison: Bayesian Networks and Association rules}
+
+At this point we have developed two predictive tools. First of all, we have obtained different sets of associative rules which we can use to make predictions based on and for different time windows. These rules must be now implemented into a Rules/Event processing platform such as JBoss Drools, which would take past events as an input and generate predictions based on the rules we have previously obtained.
+
+Furthermore, we have developed an alternative tool following a different approach: \emph{Bayesian networks}. These networks are a mathematical tool which offer a causal model indicating how all the nodes in our network affect each others in terms of probability. In our bayesian networks, our nodes are all the possible alarms which can happen in our observation periods, which are related by their conditioned probabilities. When an event happens in our observation period, we can set the probability on that node to 100\% (we certainly know it has happened) and all the probabilities for other nodes will be recalculated according to the conditioned probabilities formulas in each of the edges of the graph.
+
+\emph{Bayesian networks} are themselves a form of information in the form of a graph. The conditioned probabilities relating the nodes can sometimes show relations with actual implied causality in them. These relations are, however, generally not evident or not even real, as the high complexity of the network can propagate conditioned probabilities through non-related nodes, which - although matematically correct - would not represent actual causal relations.
+
+For our purposes, both tools would be used in a similar fashion: we receive an input (the alarms which have happened during the current period) and want to generate a list with possible events and their probability. Whether the prediction is given by firing a set of rules or calculating probabilities with a bayesian network is of few importance to us. We will therefore analyse both models and choose the one which offers the best performance.
+
+\subsection{Accuracy vs antecedent support}
+The most important performance measure we will check is probably the accuracy or precision which can be achieved by both systems. We must however be careful when comparing both models, as predictions are not \emph{raised} with the same procedure in both of them. Specifically, we will also check the amount of alarms we need to know beforehand in order to give a valid prediction - given a precission threshold above of which we will consider our predictions good enough.
+
+To begin with, we will check the maximum achievable precision with both system, for each number of antecedents considered. In the case of association rules this means the number of alarms needed for the rule to be risen, and in the case of bayesian networks, the amount of nodes we must set to 100\% probability (i.e. already happened) to obtain those values. It is important to note that in the case of association rules, we have set the cSPADE algorithm to search sequences in depths of a maximum of 7 events, as higher sequences could otherwise not be handled by our available systems.
+
+The results can be seen in table \ref{tab:accuracy_cspade_bn} and figure \ref{fig:accuracy_cspade_bn}.
+
+\begin{table}
+\begin{center}
+
+\begin{tabular}{|c|c|c|}
+\hline \headcell{$ max\{size_{ant.}\}$} & \headcell{$ max\{prec_{rules}\}$} & \headcell{$ max\{prec_{BN}\}$} \\ 
+\hline
+\hline 1 & 0.43 & 0.01 \\ 
+\hline 2 & 0.51 & 0.01 \\ 
+\hline 3 & 0.83 & 0.02 \\ 
+\hline 4 & 0.83 & 0.02 \\ 
+\hline 5 & 0.83 & 0.03 \\ 
+\hline 6 & 0.83 & 0.03 \\ 
+\hline 7 & 0.83 & 0.04 \\ 
+\hline 8 & -- & 0.06 \\ 
+\hline 9 & -- & 0.09 \\ 
+\hline 10 & -- & 0.15 \\ 
+\hline 11 & -- & 0.18 \\ 
+\hline 12 & -- & 0.18 \\ 
+\hline ... & ... & ... \\ 
+\hline 20 & -- & 0.24 \\ 
+\hline 21 & -- & 0.24 \\ 
+\hline 22 & -- & 0.24 \\ 
+\hline 
+
+\end{tabular} 
+\caption{Maximum precision for association rules and bayesian networks} \label{tab:accuracy_cspade_bn}
+\end{center}
+\end{table}
+
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/assoc_vs_bayes.png}
+\caption{Maximum precision for association rules and bayesian networks} \label{fig:accuracy_cspade_bn}
+\end{figure}
+
+In figure \ref{fig:accuracy_cspade_bn} we can see at first glance that Bayesian Networks perform poorly in terms of accuracy. Whilst they give information on probability for all the possible events in our system, they cannot achieve such high precissions as our rule-based model. It is important to note that we have not considered number of antecedents higher than 22, because that is the standard value of different alarms raised over periods of days. This value does not vary significantly over periods of weeks, and we would have to study periods of months or years to probably get better results. As we do not count on such long periods (we would need to count on several years to make predictions in terms of years), this option cannot be evaluated.
+
+On the other hand, we find that the maximum precision for rule-based predictions is achieved already in rules with three terms in the antecedent. This results in much more convenient knowledge, as having to wait till we receive a high number of different alarms in order to be able to predict anything is indeed a poor performing method.
+
+In order to avoid these results to be unrealistic due to maximum-performance values which could be outliers, we will make a deeper insight on the number of predictions we would be able to make in each case. In the case of association rules, this is the number of rules whose precision is higher than our defined threshold, and in bayesian networks, the number of nodes of which we can make a different prediction with a higher precision. In this case, we will not limit the maximum number of alarms to be taken into account.
+
+As the number of rule sets and bayesian networks which we can build is very high, we will illustrate this with an example case taking the \emph{Antequera} maintenance station.
+
+\begin{table}
+\begin{center}
+
+\begin{tabular}{|c|c|c|}
+\hline \headcell{$ min\{prec\}$} & \headcell{$ num\{pred_{rules}\}$} & \headcell{$ num\{pred_{BN}\}$} \\ 
+\hline
+\hline 0.80 & 48 & 0 \\ 
+\hline 0.70 & 787 & 0 \\ 
+\hline 0.60 & 2872 & 0 \\ 
+\hline 0.50 & 3795 & 0 \\ 
+\hline 0.40 & 6095 & 0 \\ 
+\hline 0.20 & 14340 & 100 \\ 
+\hline 0.10 & 18727 & 350 \\ 
+\hline 0.05 & 22308 & 560 \\ 
+\hline 
+
+\end{tabular} 
+\caption{Number of possible predictions for each precision value} \label{tab:numrules_cspade_bn}
+\end{center}
+\end{table}
+
+In table \ref{tab:numrules_cspade_bn} we can clearly see that our rule-based model performs much better in general terms. Higher precision values of 0.83 were not caused by outliers, but there is an exponential progression in the number of predictions we can make with each precision threshold. It is important to note that these values depend on the exact model we are comparing (we will have --at least-- one per maintenance station), however, in general terms association rules perform much better than bayesian networks.
+
+\subsection{Predictive information handling}
+One of the issues we want to have into account is how to handle and maintain the knowledge we have acquired for future usage. In this direction, we have a huge difference between both tools: association rules are completely independent from each other, while the bayesian network can only function as a whole and complete system. In this direction, association rules offer a much higher flexibility for any kind of task we would like to perform in the future. Whether we would like to only monitor a specific type of event, or modify some variables in our prediction module according to changes in our systems, association rules offer a high advantage here over bayesian networks, as whichever of these tasks would be easily performed by someone without any data-mining knowledge in the first case, and would require of advanced training on bayesian models in the second.
+
+\subsection{Model choice}
+Given these performance comparisions, it is clear that we can achieve much better results using association rules than using bayesian networks. Bayesian networks can be much further tuned and trained in order to achieve much better performance, a task which requires understanding of the events nature and relations, as well as a deep analysis and evaluation of different sub models.
+
+There are also other performance measures that can be taken into account, such as execution times for the prediction engine or computational cost of the model acquisition. However, these measures are by far not as important as the one we have taken into account here: prediction accuracy, in which bayesian networks have so far performed way worse than our rule-based model. 
+
+For these reasons, our work has been focused on the rule-based model, which has already proven since earlier comparisions a much better performance.
+
+
 \clearpage
 
 \bibliographystyle{plain} 
