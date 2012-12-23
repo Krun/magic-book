@@ -81,7 +81,9 @@ Using the frequent sequences obtained from the first step, we can build \emph{ca
 
 Finally, we must check which of these \emph{candidate association rules} are actually good predictive rules, and obtain a precise measure of \emph{how good} they are. Specifically, we will measure the \emph{certainty} (precision) of the predictions made by using these rules and the \emph{amount of events} (recall) they are able to predict. This step will be explained in detail in section~\ref{sec:validation_evaluation}.
 
-\section{Mining frequent sequences}\label{sec:mining_sequences}
+\section{Model based in association rules}
+
+\subsection{frequent sequences}\label{sec:mining_sequences}
 The first step for our chosen approach is to find frequent sequences in our datasets. Frequent sequences will be good candidates from which we can be able to obtain association rules -- if there is an unknown causal relation between two events, they will appear together considerably often. Several algorithms have been developed in the past in order to approach this task of finding frequent sequences. Some examples are the \emph{GSB} algorithm and the \emph{SPADE} algorithm, being the later an alternative to the first with better performance and results.
 
 The procedure of finding frequent sequences in a dataset mainly consists on an iterative analysis of all the possible combinations of elements of the database in sequences. For example, the GSB algorithm can be roughly described as follows:
@@ -98,7 +100,7 @@ The support of a sequence is calculated as the number of times it happens in our
 
 More information on GSB and SPADE algorithms can be found in \cite{zaki2001spade, zhao2003sequential, srikant1996mining}. Although It is not our priority now to study these algorithms in depth, previous work shows a better performance for SPADE than for GSB, and therefore it will be our algorithm of choice for our work. Furthermore, SPADE implementations are conveniently available in R libraries, which will allow us to easily execute the algorithm on our datasets.
 
-\subsection{Defining constraints}
+\subsubsection{Defining constraints}
 One of the main problems we find when we look for frequent sequences in our database, is that not any sequence -- although frequent -- is useful for our purposes. In the end our goal is to make predictions, for which obtaining these frequent patterns is useful. However, our project context -- and sometimes common sense -- may put additional conditions on \emph{which} kind of predictions are useful; and therefore, \emph{which} kind of patterns we must look for.
 
 For instance, due to the characteristics of our systems, it might not be possible to perform maintenance tasks in short periods of time. Sequences showing us that \emph{A} always breaks within one hour after \emph{B} breaking might not be useful even if we can obtain a very high certainty of that prediction. If we need to buy new pieces to fix B, and those pieces are usually delivered in terms of weeks, knowing that \emph{B} will break one hour before it breaks would not give us any advantage over waiting for it to break and notice without any prediction.
@@ -146,7 +148,7 @@ Both these groups of constraints must be applied within the process of the algor
 
 An extended version of the SPADE algorithm has been developed to include some of these constraints which were not contemplated by the original SPADE implementation. The \emph{cSPADE} algorithm\cite{zaki2000cspade,wu2010sequential} provides an implementation taking into account all these mentioned conditions. It is available as an R implementation under the library \emph{arulessequences}\cite{hahsler2011arules}. The only constraint which we are not directly able to define as a cSPADE condition is the maximum number of items in the last term of the sequence, as the condition imposable as a cSPADE parameter is a maximum number of items for \emph{all} the terms. This will have to be addressed at the time of building the association rules, as we will see in section \ref{sec:assoc_rules}.
 
-\section{Building candidate association rules} \label{sec:assoc_rules}
+\subsection{Building candidate association rules} \label{sec:assoc_rules}
 The next step in our knowledge discovery process is the construction of potential rules which could be applied to the prediction of events in our system. As we have mentioned several times, a rule is a sentence of the form ${A} \xrightarrow{T} {B} [p]$, where \emph{A} is the antecedent (maybe containing several events), B is the consequent (also maybe containing several events), \emph{T} is the time period between \emph{A} and \emph{B}, and \emph{p} is the probability of this rule being true.
 
 In order to transform our already available set of frequent sequences into rules of said form, first we must build all the candidate rules which can result from the obtained sequences. As we mentioned in section \ref{sec:mining_sequences}, \emph{cSPADE} allows us to define certain constraints in order to obtain suitable sequences to build rules afterwards. Said constraints are:
@@ -178,7 +180,7 @@ $$\{A, B\} \xrightarrow{T} \{C\}$$
 $$\{A, B\} \xrightarrow{T} \{D\}$$
 
 
-\section{Validation and evaluation} \label{sec:validation_evaluation}
+\subsection{Validation and evaluation} \label{sec:validation_evaluation}
 
 % Ahora tenemos que ver cuales de las candidatas se pueden usar realmente como reglas
 % Enfoque: Tomar todas las reglas como finales y calcular su performance.
@@ -187,7 +189,7 @@ $$\{A, B\} \xrightarrow{T} \{D\}$$
 % Lueog hay que definir el procedimiento de evaluacion
 % Al final, obtenemos un conjunto de reglas que han demostrado una buena performance, y de paso tenemos la probabilidad para cada regla
 
-\section{Evaluation criteria}
+\subsection{Evaluation criteria}
 The predictive information obtained in the data mining process, will lead to the implementation of systems which will give us a prediction using current events as its input. This prediction will be given in the form of an alarm or set of alarms, which are likely to be raised within a given prediction period. In this section we will approach the problem of \emph{evaluation} of this predictive information.
 
 As a first thought, it might seem appropriate to evaluate our predictions by how true they actually are. We can measure the \emph{accuracy} of a prediction rule system easily by checking how often it becomes true and how often it does not. This is an important factor to take into account, but is however not completely significant of the overall quality of the system. In a limit case in which we only attained a trivial but highly accurate rule which gives valid but trivial predictions all the times, we would have an accuracy of 100\%, while the overall quality of the system would be none. We must actually check not only the accuracy of our predictions, but also their relevance against the whole situation.
@@ -217,7 +219,7 @@ F = \dfrac{(\beta^{2}+1) \cdot Prec \cdot Rec}{\beta^{2} \cdot Prec+Rec}
 where $\beta\in [0,1]$ balances the importance between recall and precision.
 
 
-\section{Validation}
+\subsection{Validation}
 Once the data mining process has been successfully performed, it is of essential importance to \emph{validate} the obtained results. This is, once we have learnt to make predictions based on observation of events, we must actually test how good our predictions are. As we count on a vast amount of data logs, we can easily check our predictions against this historic data. However, if we do this on the same data we have used to obtain this knowledge (our \emph{learning set}) we will obviously obtain extremely good results, as we have already learnt all the patterns happening on that exact data. If we had an ideal, infinite data set with \emph{all} the possible situations that can ever happen in our system, we could have learnt absolutely every possible prediction to be made on the system and no future event could be \emph{unexpected} to our new prediction abilities. However, in real systems this is not the case, and it is very likely that patterns and characteristics of the systems vary along time. 
 
 Additionally, training our system over a single large set of data can lead to \emph{overfitting}. This happens when our predictive knowledge becomes extremely accurate for the set we have been training on, but performs poorly on any other set of events not contained on our learning set. It is important to avoid overfitting by performing learning procedures in a way that not our whole amount of data available is used at the same time. In this direction, the usage of very large data sets for learning procedures can be very inconvenient. In one hand we might be learning patterns which are exclusive to the specific period we are studying (for instance, we may be trying to obtain knowledge from logs from a specific year which we intend to use for forthcoming years), and when we validate this information, we will obtain unrealistic good performance measures.
@@ -232,7 +234,27 @@ In some cases, we can even randomize the division of the data into subsets, obta
 
 A commonly used value for \textit{k} is 10. As in our case we will generally work with data sets comprising about a year of historic data, this division will provide learning sets of about 9 months and testing sets of about 1 month, which reasonable when validating predictions in terms of days.
 
+\section{Model based in bayesian networks}
+As an alternative method, we have selected a second tool which can be of great help for obtention of predictions of the kind we are dealing with in our project: \emph{Bayesian Networks}. A Bayesian network is a probabilistic model which represents a set of variables and their conditional dependencies via a directed acyclic graph. A very simplified example can be seen in figure~\ref{fig:bayesian_example}.
 
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/bayesian_example.png}
+\caption{An example of a very simple bayesian network} \label{fig:bayesian_example}
+\end{figure}
+
+In our case, the nodes in the graph would represent all the different types of alarms which can be risen by our system. These nodes would have two possible states each: \emph{yes} (or \emph{true}) and \emph{no} (or \emph{false}) in a boolean fashion, indicating whether the alarm is risen or not within the observed period. Nodes in the graph are connected to each other through edges, which represent the causal influential relationship existing between them. Each state in a node (\emph{yes} or \emph{no}) is given a percentual value, indicating the probability of that state to be true or false in our system. These values are calculated as a function of their related nodes by application of Bayes theorem. This way, the probability of the \emph{yes} state of a node will be given by the probabilities of their parent nodes, each of which can affect it in a different way depending on the \emph{weight} of the edge connecting them.
+
+\subsection{Construction of bayesian networks}
+The creation of a Bayesian Network involves two different steps. First of all, we must obtain the graph structure for the network. This can be be achieved through different processes. The most convenient is to count on an already existing causal information for the nodes in our system. For example, if some of our nodes represent diagnosis systems results, and some other nodes represent possible errors, we may count already on information on which diagnosis systems can detect each of the errors and manually create a structure in that specific way. However, there might be scenarios in which these relations are completely unknown or not evident at first sight. In that case, we can also build these structures based on already existing data about the nodes in our network. In our case, we initially do not count on already existing relational information for our system, so the second approach will be followed. This way, we will create a preliminary structure with several relations between nodes. Using this information, we will check with Thales' engineers how each edge relates with actual causal relations (for example, systems which are known to be dependent of each other) and which ones are known to be completely unrelated (for example, independent systems which cannot have any influence in each other at all). Using this information we will \emph{tune} the preliminary structures manually strengthening those edges known to be valid and weakening or eliminating those known to be invalid.
+
+The second step is to calculate the probability functions for all the nodes in the network. Once we have created the structure of our network --either manually or with automatic procedures-- we have to give states in each node a probability function, or in other words, calculate the weights of the edges. This process requires of large amounts of data to be used as evidence, from which the probabilistic dependencies will be calculated.
+
+There are lots of available tools which already implement methods for these purposes. Specifically, we will use \emph{GeNIe/SMILE}\cite{druzdzel1999smile} as well as \emph{R libraries} in order to achieve this.
+
+\subsection{Using bayesian networks to predict events}
+%TO DO
+\subsection{Validation and Evaluation}
+% TO DO
 \section{Model comparison: Bayesian Networks and Association rules}
 
 At this point we have developed two predictive tools. First of all, we have obtained different sets of associative rules which we can use to make predictions based on and for different time windows. These rules must be now implemented into a Rules/Event processing platform such as JBoss Drools, which would take past events as an input and generate predictions based on the rules we have previously obtained.
