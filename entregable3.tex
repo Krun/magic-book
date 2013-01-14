@@ -74,7 +74,8 @@ In previous stages of our project we have performed preliminary analysis on our 
 
 This step, usually refered to as \emph{Data Mining} is the most important in the whole \emph{knowledge discovery} procedure. Although data analysis and preprocessing do have a big impact on the quality of the results we will be able to achieve in the end, the choice of an appropriate data mining algorithm is essential for the whole procedure to work.
 
-\section{Data mining}\label{sec:datamining}
+\section{Data mining} 
+\label{sec:datamining}
 In order to find the most adequate techniques for knowledge discovery in our project, we will start making a general survey on all the available techniques. Due to the vast amount of already existing implementations available for each of the different data mining categories, we won't have to make an implementation from scratch but adapt one of the already existing implementations to the characteristics of our problem by setting the necessary constraints.
 
 To begin with, we will describe the categories in which all the different algorithms are usually classified. This classification is usually made as follows:
@@ -100,7 +101,8 @@ In this direction, we will use the approach of the \emph{association} algorithms
 
 At this point we have two appropriate approaches. In first place, we can build association rules based on sequence analysis made in our data. As a second approach, we can follow a classification method. In order to build our rule-based model, we will use \emph{cSPADE}, an algorithm which provides a convenient way to find frequent patterns. Further details on this model and the selected algorithm is given in section~\ref{sec:rule_model}. For our classification model, we will use \emph{bayesian networks} as explained in section~\ref{sec:bayesian}
 
-\section{Model based in association rules}\label{sec:rule_model}
+\section{Model based in association rules}
+\label{sec:rule_model}
 As we mentioned previously, one of our options to approach our problem is the construction of a model based on association rules. This approach consists on building association predictive rules using frequent secuences in our available data as a base.
 
 First of all we must therefore obtain all potential sequential information (patterns) from our database, as mentioned. These sequences will be of the form $\{A, B\} \longrightarrow \{C, D\} \longrightarrow \{E, F\}$ and will serve as a basis to build candidate \emph{association rules}. This step is explained with further details on section~\ref{sec:mining_sequences}.
@@ -118,7 +120,8 @@ The whole procedure can be summarized in the following steps:
 
 These steps will be further described in the following sections.
 
-\subsection{Obtaining frequent sequences}\label{sec:mining_sequences}
+\subsection{Obtaining frequent sequences}
+\label{sec:mining_sequences}
 The first step for our chosen approach is to find frequent sequences in our datasets. Frequent sequences will be good candidates from which we can be able to obtain association rules -- if there is an unknown causal relation between two events, they will appear together considerably often. Several algorithms have been developed in the past in order to approach this task of finding frequent sequences. Some examples are the \emph{GSB} algorithm and the \emph{SPADE} algorithm, being the later an alternative to the first with better performance and results.
 
 The procedure of finding frequent sequences in a dataset mainly consists on an iterative analysis of all the possible combinations of elements of the database in sequences. For example, the GSB algorithm can be roughly described as follows:
@@ -183,7 +186,8 @@ Both these groups of constraints must be applied within the process of the algor
 
 An extended version of the SPADE algorithm has been developed to include some of these constraints which were not contemplated by the original SPADE implementation. The \emph{cSPADE} algorithm\cite{zaki2000cspade,wu2010sequential} provides an implementation taking into account all these mentioned conditions. It is available as an R implementation under the library \emph{arulessequences}\cite{hahsler2011arules}. The only constraint which we are not directly able to define as a cSPADE condition is the maximum number of items in the last term of the sequence, as the condition imposable as a cSPADE parameter is a maximum number of items for \emph{all} the terms. This will have to be addressed at the time of building the association rules, as we will see in section \ref{sec:assoc_rules}.
 
-\subsection{Building candidate association rules} \label{sec:assoc_rules}
+\subsection{Building candidate association rules} 
+\label{sec:assoc_rules}
 The next step in our knowledge discovery process is the construction of potential rules which could be applied to the prediction of events in our system. As we have mentioned several times, a rule is a sentence of the form ${A} \xrightarrow{T} {B} [p]$, where \emph{A} is the antecedent (maybe containing several events), B is the consequent (also maybe containing several events), \emph{T} is the time period between \emph{A} and \emph{B}, and \emph{p} is the probability of this rule being true.
 
 In order to transform our already available set of frequent sequences into rules of said form, first we must build all the candidate rules which can result from the obtained sequences. As we mentioned in section \ref{sec:mining_sequences}, \emph{cSPADE} allows us to define certain constraints in order to obtain suitable sequences to build rules afterwards. Said constraints are:
@@ -217,7 +221,8 @@ $$\{A, B\} \xrightarrow{T} \{D\}$$
 At this point we have transformed the initial frequent sequences into candidate association rules. The next step is to check which of these candidate rules are actually useful for predictive purposes. This leads to the last steps in the construction of this model: \emph{evaluation and validation}.
 
 
-\subsection{Evaluation and validation} \label{sec:validation_evaluation}
+\subsection{Evaluation and validation}
+\label{sec:validation_evaluation}
 
 Once we have obtained a set of candidate rules, we must evaluate them to discern which of them are good enough to make it into the final predictive rule set. For this, we must perform two final tasks: defining evaluation criteria and applying a validation method.
 
@@ -273,7 +278,8 @@ In some cases, we can even randomize the division of the data into subsets, obta
 
 A commonly used value for \textit{k} is 10. As in our case we will generally work with data sets comprising about a year of historic data, this division will provide learning sets of about 9 months and testing sets of about 1 month, which reasonable when validating predictions in terms of days.
 
-\section{Model based in bayesian networks}\label{sec:bayesian}
+\section{Model based in bayesian networks}
+\label{sec:bayesian}
 As an alternative method, we have selected a second tool which can be of great help for obtention of predictions of the kind we are dealing with in our project: \emph{Bayesian Networks}. A Bayesian network is a probabilistic model which represents a set of variables and their conditional dependencies via a directed acyclic graph. A very simplified example can be seen in figure~\ref{fig:bayesian_example}.
 
 \begin{figure}[hbtp]
