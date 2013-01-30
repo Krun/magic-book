@@ -395,7 +395,13 @@ There are also other performance measures that can be taken into account, such a
 For these reasons, our work has been focused on the rule-based model, which has already proven since earlier comparisions a much better performance.
 
 \section{Result details and evaluation}
-In this section we will make a deep insight on the obtained data. As we analysed in section~\ref{sec:model_comparison}, results are significantly better when using our \emph{rule-based model} than with \emph{bayesian networks}. 
+In this section we will make a deep insight on the obtained data. As we analysed in section~\ref{sec:model_comparison}, results are significantly better when using our \emph{rule-based model} than with \emph{bayesian networks}. The first iterations performed with the second model provided extremely poor results, and therefore efforts were consequently focused on the first.
+
+Our goal was to generate different rulesets for each of our maintenance stations, each of them covering different time windows. Specifically, we have studied three different time windows: one day, two days and one week. This defines the observation period for our predictive work, which means not only the time span we will use as antecedents for our rules but also the time window within which our prediction can occur.
+
+The results are very different depending on which station and time period we chose. In this section we will analyse the results obtained for each of them from different perspectives.
+
+\subsection{Number of rules against precision}
 
 
 \clearpage
