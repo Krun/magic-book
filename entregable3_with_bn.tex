@@ -41,13 +41,19 @@
 
 This document describes the main knowledge discovery procedure performed for the \emph{Trainmining} project. After the already described and finished steps of goal definitions, data analysis and preprocessing, this step focuses on the data mining procedures themselves: the actual extraction of the knowledge from the available databases.
 
-All the existing data mining algorithms have been analised and classified in order to find the most appropriate for our purposes. After this survey, we selected the best method to approach our problem: searching for association rules based on frequent patterns.
+All the existing data mining algorithms have been analised and classified in order to find the most appropriate for our purposes. After this survey, two main options were found to be the best potential methods to approach our problem: association rules based on frequent patterns and bayesian networks.
 
-This method consists on finding frequent patterns in our databases in order to be used as predictive rules. Different algorithms already exist to mine these frequent patterns, of which we will select the most advanced and efficient one: cSPADE. In order to build useful prediction rules, two factors have to be taken into account: temporal adequation (patterns that do not run for too long or inadequate periods) and their actual precision (removing the \emph{noise} introduced by events which are frequent but do not offer good predictive information).
+The first method consists on finding frequent patterns in our databases in order to be used as predictive rules. Different algorithms already exist to mine these frequent patterns, of which we will select the most advanced and efficient one: cSPADE. In order to build useful prediction rules, two factors have to be taken into account: temporal adequation (patterns that do not run for too long or inadequate periods) and their actual precision (removing the \emph{noise} introduced by events which are frequent but do not offer good predictive information).
 
 In order to being able to adequately extrapolate our acquired knowledge to periods not covered by our historical data, we must try and remove the specific characteristics of these databases. For this purpose, a special validation method will be used: the \emph{k-fold cross validation method}. This method separates the database into \emph{k} different learning and result sets and iterates the whole learning/validation procedure in all of them. This way, the result is a system with an average performance for all the different parts of the database, which avoids overfitting of our predictive rules for any specific dataset.
 
-Finally, an analysis of the results is gathered in this document, which allows us to see at first glance the kind of results obtained and their performance rating. The functionality of the acquired rules is also illustrated with examples of operation during selected periods of time.
+The second method uses a mathematic tool: bayesian networks. These networks are graphs representing all the possible events in our system as different nodes. These nodes have two possible states, indicating whether the alarm has happened during the current period or not; as well as an associated probability for each of the states. These probabilities are conditioned to the probability of the rest of states in the network, so that when a probability changes (i.e. we have certainty of an event having happened) the probabilities of the rest of the network are affected as well to reflect the new system status.
+
+Using these models we can know the probability of a determinate event happening after the events already known of the current observation period. This allows us to predict events in a similar fashion than with our rule-based model, although computation of probabilities is completely different. In this direction, the same evaluation and validation approach will be followed: using \emph{k-fold cross validation} and treating the probability given for each graph node as if it was a rule-based prediction.
+
+After evaluating both models, our rule-based approach is seen to perform much better than bayesian networks. Therefore, additional tuning and development will be performed in order to improve our rule-based model, while the bayesian model development will be put on hiatus due to the high amount of work which would be required just to achieve the same performance level.
+
+Finally, an analysis of the results is gathered in this document, which allows us to see at first glance the kind of results obtained and their performance rating.
 
 \newpage
 \tableofcontents % indice de contenidos
@@ -68,7 +74,7 @@ In previous stages of our project we have performed preliminary analysis on our 
 
 This step, usually refered to as \emph{Data Mining} is the most important in the whole \emph{knowledge discovery} procedure. Although data analysis and preprocessing do have a big impact on the quality of the results we will be able to achieve in the end, the choice of an appropriate data mining algorithm is essential for the whole procedure to work.
 
-\section{Survey on data mining techniques} 
+\section{Data mining} 
 \label{sec:datamining}
 In order to find the most adequate techniques for knowledge discovery in our project, we will start making a general survey on all the available techniques. Due to the vast amount of already existing implementations available for each of the different data mining categories, we won't have to make an implementation from scratch but adapt one of the already existing implementations to the characteristics of our problem by setting the necessary constraints.
 
@@ -85,19 +91,19 @@ To begin with, we will describe the categories in which all the different algori
 
 \emph{Segmentation} and \emph{summarization} algorithms seem to be obviously out of the question, as their functionality differs completely from the objectives we want to achieve in our project. \emph{Regression} algorithms are inadequate as well due to the nature of our data. We do not count on variables whose future value we want to predict.
 
-\emph{Classification} algorithms might not seem like a good choice at first, as we do not have the need to classificate the events into any existing categories. However, if we define an appropriate set of categories and an appropriate model of items to classify, classification algorithms can be actually useful for our tasks. If we model the current events as the \emph{item} to classify, and the possible categories as the possible events which can happen in the future, we can actually classify the current situation (defined by the events which have already happened) into possible categories each defining what would happen next.
-
-However, \emph{sequence analysis} seems to be the most appropriate category at at first glance: we count on historic data from the past and we want to find event patterns from which we can foresee future events. Patterns which are frequent offer useful information in this direction. If we know a set of several events which often happen in the same sequence, we can expect the later events in the sequence to happen once we have already seen the first ones.
+\emph{Sequence analysis} seems to be the most appropriate category at at first glance: we count on historic data from the past and we want to find event patterns from which we can foresee future events. Patterns which are frequent offer useful information in this direction. If we know a set of several events which often happen in the same sequence, we can expect the later events in the sequence to happen once we have already seen the first ones.
 
 These sequences offer a good starting point, but it is important to realize that \emph{frequency} in a pattern refers to the total of events happening during the observated period, and does not indicate in any way the \emph{probability} of the last events in a sequence to happen once the first ones have been acknowledged. In other words, we want to obtain predictions with a high \emph{probability} rather than a high \emph{frequency}.
 
 In this direction, we will use the approach of the \emph{association} algorithms. Using frequent sequences as an starting point, we will build \emph{association rules} which will relate events in the form of boolean variables.
 
-Therefore, this is the most appropriate approach, as it addresses our problem directly without the need of transforming it into a different kind of situation.
+\emph{Classification} algorithms might not seem like a good choice at first, as we do not have the need to classificate the events into any existing categories. However, if we define an appropriate set of categories and an appropriate model of items to classify, classification algorithms can be actually useful for our tasks. If we model the current events as the \emph{item} to classify, and the possible categories as the possible events which can happen in the future, we can actually classify the current situation (defined by the events which have already happened) into possible categories each defining what would happen next.
 
-\section{Acquisition of association rules}
+At this point we have two appropriate approaches. In first place, we can build association rules based on sequence analysis made in our data. As a second approach, we can follow a classification method. In order to build our rule-based model, we will use \emph{cSPADE}, an algorithm which provides a convenient way to find frequent patterns. Further details on this model and the selected algorithm is given in section~\ref{sec:rule_model}. For our classification model, we will use \emph{bayesian networks} as explained in section~\ref{sec:bayesian}
+
+\section{Model based in association rules}
 \label{sec:rule_model}
-As we mentioned previously, the most appropriate way to address our problem is the construction of a model based on association rules. This approach consists on building association predictive rules using frequent secuences in our available data as a base.
+As we mentioned previously, one of our options to approach our problem is the construction of a model based on association rules. This approach consists on building association predictive rules using frequent secuences in our available data as a base.
 
 First of all we must therefore obtain all potential sequential information (patterns) from our database, as mentioned. These sequences will be of the form $\{A, B\} \longrightarrow \{C, D\} \longrightarrow \{E, F\}$ and will serve as a basis to build candidate \emph{association rules}. This step is explained with further details on section~\ref{sec:mining_sequences}.
 
@@ -127,8 +133,6 @@ The procedure of finding frequent sequences in a dataset mainly consists on an i
 \item Length 3 candidates are generated as addition of length 1 sequences to length 2 sequences whose support is higher than a given minimum
 \item The process is repeated till no candidates have high enough support
 \end{enumerate}
-
-In other words, the candidates are created in a tree fashion, by adding length 1 sequences (possible terms) to elements in a level. If a branch reaches the minimum required support value, it stops growing, as adding more terms to the sequence will make it more specific and necessarily less frequent.
 
 The support of a sequence is calculated as the number of times it happens in our dataset. The support is usually expressed as a percentage of the whole amount of sequences in the database, but it is important to note that this parameter is not related in any way with the confidence or precision of any prediction we might do with the given pattern. A deeper approach on this issue will be described later in this document.
 
@@ -274,444 +278,133 @@ In some cases, we can even randomize the division of the data into subsets, obta
 
 A commonly used value for \textit{k} is 10. As in our case we will generally work with data sets comprising about a year of historic data, this division will provide learning sets of about 9 months and testing sets of about 1 month, which reasonable when validating predictions in terms of days.
 
-\section{Adjusting search parameters}
-\label{sec:search_parameters}
-The results of the whole mentioned process will be determined by its execution parameters. In sections~\ref{sec:mining_sequences} and~\ref{sec:assoc_rules} we already explained all the possible adjustments we can make in both steps and how they would affect to obtained results. 
+\section{Model based in bayesian networks}
+\label{sec:bayesian}
+As an alternative method, we have selected a second tool which can be of great help for obtention of predictions of the kind we are dealing with in our project: \emph{Bayesian Networks}. A Bayesian network is a probabilistic model which represents a set of variables and their conditional dependencies via a directed acyclic graph. A very simplified example can be seen in figure~\ref{fig:bayesian_example}.
 
-For this kind of data mining algorithms, what most influences the quality of results is search depth. In other words, they will be determined by how \emph{deep} in our data we are willing (or \emph{able}) to search in order to find our desired information. The deeper we search, the better results we can expect, at the cost of higher need of resources.
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/bayesian_example.png}
+\caption{An example of a very simple bayesian network} \label{fig:bayesian_example}
+\end{figure}
 
-In our problem, depth comes defined by two parameters: number of terms and minimum sequence support.
+In our case, the nodes in the graph would represent all the different types of alarms which can be risen by our system. These nodes would have two possible states each: \emph{yes} (or \emph{true}) and \emph{no} (or \emph{false}) in a boolean fashion, indicating whether the alarm is risen or not within the observed period. Nodes in the graph are connected to each other through edges, which represent the causal influential relationship existing between them. Each state in a node (\emph{yes} or \emph{no}) is given a percentual value, indicating the probability of that state to be true or false in our system. These values are calculated as a function of their related nodes by application of Bayes theorem. This way, the probability of the \emph{yes} state of a node will be given by the probabilities of their parent nodes, each of which can affect it in a different way depending on the \emph{weight} of the edge connecting them.
 
-The \emph{maximum number of terms} is simply how long we want our sequence candidates to be. The more items we add to a sequence, the more specific that situation will be, from which we can expect to obtain more precise information. However, the more specific a situation is, the less likely it will be to be extrapolated to usual situations. In terms of computation, the length of the candidates exponentially rises the complexity of the problem and the number of resources needed, and therefore a reasonable limit is to be put on this parameter.
+\subsection{Construction of bayesian networks}
+The creation of a Bayesian Network involves two different steps. First of all, we must obtain the graph structure for the network. This can be be achieved through different processes. The most convenient is to count on an already existing causal information for the nodes in our system. For example, if some of our nodes represent diagnosis systems results, and some other nodes represent possible errors, we may count already on information on which diagnosis systems can detect each of the errors and manually create a structure in that specific way. However, there might be scenarios in which these relations are completely unknown or not evident at first sight. In that case, we can also build these structures based on already existing data about the nodes in our network. In our case, we initially do not count on already existing relational information for our system, so the second approach will be followed. This way, we will create a preliminary structure with several relations between nodes. Using this information, we will check with Thales' engineers how each edge relates with actual causal relations (for example, systems which are known to be dependent of each other) and which ones are known to be completely unrelated (for example, independent systems which cannot have any influence in each other at all). Using this information we will \emph{tune} the preliminary structures manually strengthening those edges known to be valid and weakening or eliminating those known to be invalid.
 
-The \emph{minimum support} defines the number of times a sequence needs to have happened to be considered \emph{frequent}. This parameter has already been mentioned in the explanation of the chosen algorithm in section~\ref{sec:mining_sequences}. A lower minimum support value will offer a higher number of candidates, and therefore a higher number of association rules. However, this parameter drastically affects the computational costs needed to execute the algorithm.
+The second step is to calculate the probability functions for all the nodes in the network. Once we have created the structure of our network --either manually or with automatic procedures-- we have to give states in each node a probability function, or in other words, calculate the weights of the edges. This process requires of large amounts of data to be used as evidence, from which the probabilistic dependencies will be calculated.
 
-As we mentioned in section~\ref{sec:mining_sequences}, candidates are built in a tree fashion, with branches growing larger and larger till the minimum support is reached. Both parameters define when branches of the trees stop growing: once the maximum number of terms has been reached, or once the support is not enough for the sequences to be considered frequent. A compromise must therefore be found between both parameters, in order to be able to search as deep as possible.
+There are lots of available tools which already implement methods for these purposes. Specifically, we will use \emph{GeNIe/SMILE}\cite{druzdzel1999smile} as well as \emph{R libraries} in order to achieve this.
 
-\emph{Minimum support} does not have any effect on the obtained rules. Reducing it will generate a higher number of candidates and rules, but their quality or characteristics won't have any relation with this parameter. The \emph{maximum number of terms}, however, does affect them. Longer rules will usually be much less adequate than shorter ones. If we could predict \emph{everything} just by knowing one of the events which have happened today, it would be much better than having to wait till ten of them happen in order to be able to predict anything. However, it is very likely that we can make good predictions counting on very little information, so longer rules could be expected to have higher performance values.
+\subsection{Using bayesian networks to predict events}
+%TO DO
+\subsection{Validation and Evaluation}
+% TO DO
+\section{Model comparison: Bayesian Networks and Association rules}
+\label{sec:model_comparison}
 
-The decision criteria is then clear for the minimum support: we want to set this to the minimum value which can be handled by our computation capabilities. In terms of number of terms, however, increasing depth will provide \emph{more} results, some of which will however be too long as to be actually useful.
+At this point we have developed two predictive tools. First of all, we have obtained different sets of associative rules which we can use to make predictions based on and for different time windows. These rules must be now implemented into a Rules/Event processing platform such as JBoss Drools, which would take past events as an input and generate predictions based on the rules we have previously obtained.
 
-\subsection{Determining optimal values for search parameters}
-In order to fix the maximum number of terms in sequences, we have executed the whole process in a smaller sample of data with a considerably high maximum value of terms. Setting this value to \emph{10}, we could analyse results for sequences of different lengths. It is important to note that although we could expect longer sequences always to be more precise, they will also be much less frequent, so we will much faster reach the minimum support limit obtaining less candidates and probably worse rules. For this analysis, the selected minimum support was of \emph{0.1}.
+Furthermore, we have developed an alternative tool following a different approach: \emph{Bayesian networks}. These networks are a mathematical tool which offer a causal model indicating how all the nodes in our network affect each others in terms of probability. In our bayesian networks, our nodes are all the possible alarms which can happen in our observation periods, which are related by their conditioned probabilities. When an event happens in our observation period, we can set the probability on that node to 100\% (we certainly know it has happened) and all the probabilities for other nodes will be recalculated according to the conditioned probabilities formulas in each of the edges of the graph.
 
-The results are shown in table~\ref{tab:maxprecision_test}.
+\emph{Bayesian networks} are themselves a form of information in the form of a graph. The conditioned probabilities relating the nodes can sometimes show relations with actual implied causality in them. These relations are, however, generally not evident or not even real, as the high complexity of the network can propagate conditioned probabilities through non-related nodes, which - although matematically correct - would not represent actual causal relations.
+
+For our purposes, both tools would be used in a similar fashion: we receive an input (the alarms which have happened during the current period) and want to generate a list with possible events and their probability. Whether the prediction is given by firing a set of rules or calculating probabilities with a bayesian network is of few importance to us. We will therefore analyse both models and choose the one which offers the best performance.
+
+\subsection{Accuracy vs antecedent support}
+The most important performance measure we will check is probably the accuracy or precision which can be achieved by both systems. We must however be careful when comparing both models, as predictions are not \emph{raised} with the same procedure in both of them. Specifically, we will also check the amount of alarms we need to know beforehand in order to give a valid prediction - given a precission threshold above of which we will consider our predictions good enough.
+
+To begin with, we will check the maximum achievable precision with both system, for each number of antecedents considered. In the case of association rules this means the number of alarms needed for the rule to be risen, and in the case of bayesian networks, the amount of nodes we must set to 100\% probability (i.e. already happened) to obtain those values. It is important to note that in the case of association rules, we have set the cSPADE algorithm to search sequences in depths of a maximum of 7 events, as higher sequences could otherwise not be handled by our available systems.
+
+The results can be seen in table \ref{tab:accuracy_cspade_bn} and figure \ref{fig:accuracy_cspade_bn}.
 
 \begin{table}
 \begin{center}
+
 \begin{tabular}{|c|c|c|}
-\hline \headcell{Antecedent length} & \headcell{Maximum precision} \\ 
-\hline 
-1 & 0.43 \\ 
-\hline 
-2 & 0.51 \\ 
-\hline 
-3 & 0.76 \\ 
-\hline 
-4 & 0.83 \\ 
-\hline 
-5 & 0.83 \\ 
+\hline \headcell{$ max\{size_{ant.}\}$} & \headcell{$ max\{prec_{rules}\}$} & \headcell{$ max\{prec_{BN}\}$} \\ 
 \hline
-6 & 0.32 \\ 
-\hline 
-7 & --- \\ 
+\hline 1 & 0.43 & 0.01 \\ 
+\hline 2 & 0.51 & 0.01 \\ 
+\hline 3 & 0.83 & 0.02 \\ 
+\hline 4 & 0.83 & 0.02 \\ 
+\hline 5 & 0.83 & 0.03 \\ 
+\hline 6 & 0.83 & 0.03 \\ 
+\hline 7 & 0.83 & 0.04 \\ 
+\hline 8 & -- & 0.06 \\ 
+\hline 9 & -- & 0.09 \\ 
+\hline 10 & -- & 0.15 \\ 
+\hline 11 & -- & 0.18 \\ 
+\hline 12 & -- & 0.18 \\ 
+\hline ... & ... & ... \\ 
+\hline 20 & -- & 0.24 \\ 
+\hline 21 & -- & 0.24 \\ 
+\hline 22 & -- & 0.24 \\ 
 \hline 
 
 \end{tabular} 
-\caption{Possible maximum length parameters. Test execution} \label{tab:maxprecision_test}
+\caption{Maximum precision for association rules and bayesian networks} \label{tab:accuracy_cspade_bn}
 \end{center}
 \end{table}
 
-In this test run, no candidates were found with lengths of over 7 terms and support higher than 0.1. We also see that for values of 6, precision starts to decay as fewer candidates are found, with which not very good rules could be generated. We will therefore generally choose a value of 5 as the maximum size of candidates, and up to 7 in cases in which the minimum support can be significantly reduced (smaller or divided data sets).
 
-The choice for minimum support is obvious. We will choose the minimum value our computation capabilities can handle. As this is difficult to determine beforehand, we will follow a trial and error method. Starting from values of 0.01, we will iteratively increase it when computation fails to finish in a period of 24 hours.
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/assoc_vs_bayes.png}
+\caption{Maximum precision for association rules and bayesian networks} \label{fig:accuracy_cspade_bn}
+\end{figure}
 
-The details of the server used for these operations can be seen in table~\ref{tab:server}.
+In figure \ref{fig:accuracy_cspade_bn} we can see at first glance that Bayesian Networks perform poorly in terms of accuracy. Whilst they give information on probability for all the possible events in our system, they cannot achieve such high precissions as our rule-based model. It is important to note that we have not considered number of antecedents higher than 22, because that is the standard value of different alarms raised over periods of days. This value does not vary significantly over periods of weeks, and we would have to study periods of months or years to probably get better results. As we do not count on such long periods (we would need to count on several years to make predictions in terms of years), this option cannot be evaluated.
+
+On the other hand, we find that the maximum precision for rule-based predictions is achieved already in rules with three terms in the antecedent. This results in much more convenient knowledge, as having to wait till we receive a high number of different alarms in order to be able to predict anything is indeed a poor performing method.
+
+In order to avoid these results to be unrealistic due to maximum-performance values which could be outliers, we will make a deeper insight on the number of predictions we would be able to make in each case. In the case of association rules, this is the number of rules whose precision is higher than our defined threshold, and in bayesian networks, the number of nodes of which we can make a different prediction with a higher precision. In this case, we will not limit the maximum number of alarms to be taken into account.
+
+As the number of rule sets and bayesian networks which we can build is very high, we will illustrate this with an example case taking the \emph{Antequera} maintenance station.
 
 \begin{table}
 \begin{center}
+
 \begin{tabular}{|c|c|c|}
-\hline \headcell{Item} & \headcell{Details} \\ 
-\hline 
-Processor &  Intel(R) Core(TM) i7 CPU 950 @ 3.07GHz \\ 
-\hline 
-Number of cores & 8 \\ 
-\hline 
-Memory & 12 GB \\ 
-\hline 
-OS & Ubuntu 11.10 Server \\ 
+\hline \headcell{$ min\{prec\}$} & \headcell{$ num\{pred_{rules}\}$} & \headcell{$ num\{pred_{BN}\}$} \\ 
+\hline
+\hline 0.80 & 48 & 0 \\ 
+\hline 0.70 & 787 & 0 \\ 
+\hline 0.60 & 2872 & 0 \\ 
+\hline 0.50 & 3795 & 0 \\ 
+\hline 0.40 & 6095 & 0 \\ 
+\hline 0.20 & 14340 & 100 \\ 
+\hline 0.10 & 18727 & 350 \\ 
+\hline 0.05 & 22308 & 560 \\ 
 \hline 
 
 \end{tabular} 
-\caption{Server details} \label{tab:server}
+\caption{Number of possible predictions for each precision value} \label{tab:numrules_cspade_bn}
 \end{center}
 \end{table}
 
-\clearpage
-\section{Data clustering for complexity reduction}
-\label{sec:dataclustering}
-\clearpage
-\section{Results}
-In this section we will make a deep insight on the obtained data. Our goal was to generate different rulesets for each of our maintenance stations, each of them covering different time windows. Specifically, we have studied three different time windows: one day, two days and one week. This defines the observation period for our predictive work, which means not only the time span we will use as antecedents for our rules but also the time window within which our prediction can occur.
+In table \ref{tab:numrules_cspade_bn} we can clearly see that our rule-based model performs much better in general terms. Higher precision values of 0.83 were not caused by outliers, but there is an exponential progression in the number of predictions we can make with each precision threshold. It is important to note that these values depend on the exact model we are comparing (we will have --at least-- one per maintenance station), however, in general terms association rules perform much better than bayesian networks.
+
+\subsection{Predictive information handling}
+One of the issues we want to have into account is how to handle and maintain the knowledge we have acquired for future usage. In this direction, we have a huge difference between both tools: association rules are completely independent from each other, while the bayesian network can only function as a whole and complete system. In this direction, association rules offer a much higher flexibility for any kind of task we would like to perform in the future. Whether we would like to only monitor a specific type of event, or modify some variables in our prediction module according to changes in our systems, association rules offer a high advantage here over bayesian networks, as whichever of these tasks would be easily performed by someone without any data-mining knowledge in the first case, and would require of advanced training on bayesian models in the second.
+
+\subsection{Model choice}
+Given these performance comparisions, it is clear that we can achieve much better results using association rules than using bayesian networks. Bayesian networks can be much further tuned and trained in order to achieve much better performance, a task which requires understanding of the events nature and relations, as well as a deep analysis and evaluation of different sub models.
+
+There are also other performance measures that can be taken into account, such as execution times for the prediction engine or computational cost of the model acquisition. However, these measures are by far not as important as the one we have taken into account here: prediction accuracy, in which bayesian networks have so far performed much worse than our rule-based model. 
+
+For these reasons, our work has been focused on the rule-based model, which has already proven since earlier comparisions a much better performance.
+
+\section{Result details and evaluation}
+In this section we will make a deep insight on the obtained data. As we analysed in section~\ref{sec:model_comparison}, results are significantly better when using our \emph{rule-based model} than with \emph{bayesian networks}. The first iterations performed with the second model provided extremely poor results, and therefore efforts were consequently focused on the first.
+
+Our goal was to generate different rulesets for each of our maintenance stations, each of them covering different time windows. Specifically, we have studied three different time windows: one day, two days and one week. This defines the observation period for our predictive work, which means not only the time span we will use as antecedents for our rules but also the time window within which our prediction can occur.
 
 The results are very different depending on which station and time period we chose. In this section we will analyse the results obtained for each of them from different perspectives.
 
-\subsection{Description of obtained rulesets}
-\label{sec:desc_results}
-The result of the previous work described in section~\ref{sec:assoc_rules} comes in the form of a set of association rules. These \emph{rule sets} contain a list of all the association rules found, along with their performance value calculed by the \emph{K-fold-CV} procedure as defined in section~\ref{sec:validation_evaluation}. The obtained rulesets and the number of rules they contain can be seen in table~\ref{tab:numrules}.
-
-These sets contain all the information obtained from the procedure defined in section~\ref{sec:assoc_rules}. It is important to note that not all of them will be useful in order to implement a predictive system, as their precision is sometimes as low as 5\%. The threshold for a rule to be useful needs to be defined by maintenance workers who know the associated costs of maintenance tasks required to handle raised predictions before knowing if they will actually happen. If some event needs a significantly high amount of money to be avoided we will probably want to be \emph{very} confident about our precisions regarding that kind of event before investing resources on preventing it.
-
-However, in general terms we can consider a prediction is good when it has more chances of being a right guess than a wrong one. We will therefore set p=0.5 as the point where rules \emph{start} to be useful. Rules with lower precisions are still provided and can be useful for other analysis tasks or further research, but from now on we will disregard them and focus on the \emph{0.5 set} which can be used right away for predictive purposes. These new sets and their size can be seen in table~\ref{tab:numrules_50}. Obviously, the size of the sets reduces drastically when imposing this kind of conditions.
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Station} & \headcell{Time Window} & \headcell{Rules} \\ 
-\hline 
-Albacete & 1 day & 27522 \\ 
-\hline 
-Albacete & 7 days & 50281 \\ 
-\hline 
-Antequera & 1 day & 39214 \\ 
-\hline 
-Segovia & 1 day & 113 \\ 
-\hline 
-Segovia & 2 days & 72 \\ 
-\hline
-Segovia & 7 days & 133 \\ 
-\hline 
-Sevilla & 1 day & 8091 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Size of obtained rule sets for each station and time window} \label{tab:numrules}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Station} & \headcell{Time Window} & \headcell{Rules} \\ 
-\hline 
-Albacete & 7 days & 9 \\ 
-\hline 
-Antequera & 1 day & 7104 \\ 
-\hline 
-Segovia & 1 day & 31 \\ 
-\hline 
-Segovia & 2 days & 30 \\ 
-\hline
-Segovia & 7 days & 48 \\ 
-\hline 
-Sevilla & 1 day & 242 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for each set setting a threshold of 50\% precision} \label{tab:numrules_50}
-\end{center}
-\end{table}
-
-
-
-At this point, it is important to remember the decisions taken in terms of search depth and data subsetting as mentioned in sections~\ref{sec:search_parameters} and~\ref{sec:dataclustering}. In these terms, rule sets for some of the stations and time windows could not be generated with our available computation capabilities. A better server or algorithm optimisation would be required in order to obtain result sets for these cases.
-
 \subsection{Number of rules against precision}
-\label{sec:rules_vs_prec}
-As we have seen in section~\ref{sec:desc_results}, the amount of rules decreases significantly if we impose strict conditions for their validity. In this section we will perform a deeper analysis on how amount of rules vary when setting different thresholds. For this purpose, we will set different thresholds and check the number of rules complying with this condition. The results are shown in tables \ref{tab:numrules_thresh_albacete7}, \ref{tab:numrules_thresh_antequera1}, \ref{tab:numrules_thresh_segovia1}, \ref{tab:numrules_thresh_segovia2}, \ref{tab:numrules_thresh_segovia7} and \ref{tab:numrules_thresh_sevilla1}. As expected, the number of rules increases exponentially when decreasing the threshold. For better visualization, these amounts for the \emph{$>50\%$ subsets} are represented in figures~\ref{fig:precision_alb7}, \ref{fig:precision_ant1}, \ref{fig:precision_seg1}, \ref{fig:precision_seg2}, \ref{fig:precision_seg7} and \ref{fig:precision_sev1}.
 
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 44620 \\ 
-\hline 
-0.10 & 38007 \\ 
-\hline 
-0.20 & 4060 \\ 
-\hline 
-0.30 & 30 \\ 
-\hline
-0.40 & 27 \\ 
-\hline 
-0.50 & 9 \\ 
-\hline 
-0.60 & 8 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Albacete (7 days)} \label{tab:numrules_thresh_albacete7}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 31846 \\ 
-\hline 
-0.10 & 28338 \\ 
-\hline 
-0.20 & 21566 \\ 
-\hline 
-0.30 & 15829 \\ 
-\hline
-0.40 & 10876 \\ 
-\hline 
-0.50 & 7137 \\ 
-\hline 
-0.60 & 4928 \\ 
-\hline 
-0.70 & 891 \\ 
-\hline 
-0.80 & 47 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Antequera (1 day)} \label{tab:numrules_thresh_antequera1}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 106 \\ 
-\hline 
-0.10 & 95 \\ 
-\hline 
-0.20 & 72 \\ 
-\hline 
-0.30 & 44 \\ 
-\hline
-0.40 & 33 \\ 
-\hline 
-0.50 & 31 \\ 
-\hline 
-0.60 & 30 \\ 
-\hline 
-0.70 & 24 \\ 
-\hline 
-0.80 & 12 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Segovia (1 day)} \label{tab:numrules_thresh_segovia1}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 69 \\ 
-\hline 
-0.10 & 66 \\ 
-\hline 
-0.20 & 56 \\ 
-\hline 
-0.30 & 40 \\ 
-\hline
-0.40 & 31 \\ 
-\hline 
-0.50 & 30 \\ 
-\hline 
-0.60 & 14 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Segovia (2 days)} \label{tab:numrules_thresh_segovia2}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 128 \\ 
-\hline 
-0.10 & 125 \\ 
-\hline 
-0.20 & 92 \\ 
-\hline 
-0.30 & 75 \\ 
-\hline
-0.40 & 64 \\ 
-\hline 
-0.50 & 48 \\ 
-\hline 
-0.60 & 35 \\ 
-\hline 
-0.70 & 30 \\ 
-\hline 
-0.80 & 25 \\ 
-\hline 
-0.90 & 4 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Segovia (7 days)} \label{tab:numrules_thresh_segovia7}
-\end{center}
-\end{table}
-
-\begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline \headcell{Threshold} & \headcell{Number of rules} \\ 
-\hline 
-0.05 & 6730 \\ 
-\hline 
-0.10 & 2832 \\ 
-\hline 
-0.20 & 2357 \\ 
-\hline 
-0.30 & 1799 \\ 
-\hline
-0.40 & 642 \\ 
-\hline 
-0.50 & 246 \\ 
-\hline 
-0.60 & 78 \\ 
-\hline 
-0.70 & 2 \\ 
-\hline 
-
-\end{tabular} 
-\caption{Number of rules for different thresholds in Sevilla (1 day)} \label{tab:numrules_thresh_sevilla1}
-\end{center}
-\end{table}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_alb7.png}
-\caption{Number of rules for different thresholds in Albacete (7 days)} \label{fig:precision_alb7}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_ant1.png}
-\caption{Number of rules for different thresholds in Antequera (1 day)} \label{fig:precision_ant1}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_seg1.png}
-\caption{Number of rules for different thresholds in Segovia (1 day)} \label{fig:precision_seg1}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_seg2.png}
-\caption{Number of rules for different thresholds in Segovia (2 days)} \label{fig:precision_seg2}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_seg7.png}
-\caption{Number of rules for different thresholds in Segovia (7 days)} \label{fig:precision_seg7}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/precision_sev1.png}
-\caption{Number of rules for different thresholds in Sevilla (1 day)} \label{fig:precision_sev1}
-\end{figure}
 
 \clearpage
-
-\subsection{Precision distribution}
-\label{sec:precision_distribution}
-In section~\ref{sec:rules_vs_prec} we analysed the number of rules we would obtain if we set different precision levels as thresholds to generate different subsets. According to our expectations, we observed a decay in these numbers as we set higher thresholds. However, this decay, although apparently exponential, shows flat zones and other irregularities which would be unexpected at first.
-
-In order to better visualize these anomalities we will graphically represent the precision distribution in form of histograms for the previous sets. These distributions can be seen in figures~\ref{fig:hist_alb7}, \ref{fig:hist_ant1}, \ref{fig:hist_seg1}, \ref{fig:hist_seg2}, \ref{fig:hist_seg7} and \ref{fig:hist_sev1}.
-
-In these histograms we can see that the distribution does not grow exponentially as we lower the precision, as we would expect and as we apparently saw in the analysis from section~\ref{sec:rules_vs_prec}. Instead, there are some accumulation points around which precision tends to take values. 
-
-For example, looking at the distribution for Antequera (figure~\ref{fig:hist_ant1}) we see that there are more rules with precisions between 0.65 and 0.70 than between 0.50 and 0.55.
-
-As we do not have large sets of rules for all the stations, performing a deeper analysis of the distributions is not possible. As these kind of irregularities appear for all the studied cases, it is very unlikely that they are caused just by chance. However, the causes and possible implications of these distributions cannot be infered at this point and would require further research.
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_alb7.png}
-\caption{Rule distribution by precision in Albacete (7 days)} \label{fig:hist_alb7}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_ant1.png}
-\caption{Rule distribution by precision in Antequera (1 day)} \label{fig:hist_ant1}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_seg1.png}
-\caption{Rule distribution by precision in Segovia (1 day)} \label{fig:hist_seg1}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_seg2.png}
-\caption{Rule distribution by precision in Segovia (2 days)} \label{fig:hist_seg2}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_seg7.png}
-\caption{Rule distribution by precision in Segovia (7 days)} \label{fig:hist_seg7}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/hist_sev1.png}
-\caption{Rule distribution by precision in Sevilla (1 day)} \label{fig:hist_sev1}
-\end{figure}
-
-\section{Example scenario}
-\label{sec:scenario}
-
-In this section we will analyse the output of our predictive model during a short period of time. We will illustrate the kind of information an operator could obtain from an average period of time. Specifically, we will take a random period of 50 consecutive days for the station of \emph{Antequera}, over which we will perform predictions for the next days.
-
-It is important to note that this example scenario has been obtained using the rule set with precisions higher than 0.50. In a real scenario, an operator could select a higher threshold for predictions or disregard those raised predictions with a low confidence.
-
-\subsection{Predictions raised by event type}
-First of all we will observe the number of predictions raised each day of our sample. This will give us an idea of the number of predictions our system would give for an average day. This can be seen in figure~\ref{fig:scenario_pred_categories}.
-
-As we can see, for this station and rule set the number of predictions obtained in an average day is around 20. This does not include repeated predictions (more than one rule which can be fired simultaneously to predict the same event with different confidences).
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/scenario_pred_categories.png}
-\caption{Timeline of predictions during a sample period} \label{fig:scenario_pred_categories}
-\end{figure}
-
-\subsection{Percentage of events predicted}
-The next thing we can analyse is the number of events which happen during an average day which are actually predicted by our system. The result is illustrated in figure~\ref{fig:scenario_pred_notpred}. This value corresponds with what we defined as \emph{recall} in section~\ref{sec:validation_evaluation}.
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/scenario_pred_notpred.png}
-\caption{Timeline of predictions during a sample period} \label{fig:scenario_pred_notpred}
-\end{figure}
-
-\subsection{Percentage of right predictions}
-To end with, we will analyse how many of the raised predictions are actually true. In order to illustrate better this aspect and take into account also the confidence parameter of the predictions, we will perform three different analysis: one disregarding predictions with $c < 0.5$, a second one with $c < 0.7$ and a third with $c < 0.8$. The results can be seen in figures \ref{fig:scenario_right_wrong}, \ref{fig:scenario_right_wrong_70} and \ref{fig:scenario_right_wrong_80} respectively.
-
-As expected, when increasing the precision threshold we have less and less predictions, but these tend to be more accurate.
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/scenario_right_wrong.png}
-\caption{Timeline of predictions during a sample period} \label{fig:scenario_right_wrong}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/scenario_right_wrong_70.png}
-\caption{Timeline of predictions during a sample period} \label{fig:scenario_right_wrong_70}
-\end{figure}
-
-\begin{figure}[hbtp]
-\includegraphics[width=\textwidth]{img/scenario_right_wrong_80.png}
-\caption{Timeline of predictions during a sample period} \label{fig:scenario_right_wrong_80}
-\end{figure}
-
-\clearpage
-
-\section{Conclusions}
-
-\clearpage
-
-
 
 \bibliographystyle{plain} 
 \bibliography{datamining}
