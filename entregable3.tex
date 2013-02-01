@@ -39,15 +39,17 @@
 \section*{Executive Summary}
 \addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
 
-This document describes the main knowledge discovery procedure performed for the \emph{Trainmining} project. After the already described and finished steps of goal definitions, data analysis and preprocessing, this step focuses on the data mining procedures themselves: the actual extraction of the knowledge from the available databases.
+This document describes the main knowledge discovery procedure performed for the \emph{Trainmining} project. This step focuses on the data mining procedures themselves: the actual extraction of the knowledge from the available databases.
 
-All the existing data mining algorithms have been analised and classified in order to find the most appropriate for our purposes. After this survey, we selected the best method to approach our problem: searching for association rules based on frequent patterns.
+A survey on Data Mining techniques has been performed, in which the existing data mining algorithms have been analised and classified in order to find the most appropriate for our purposes. After this survey, we selected the best method to approach our problem: searching for association rules based on frequent patterns.
 
-This method consists on finding frequent patterns in our databases in order to be used as predictive rules. Different algorithms already exist to mine these frequent patterns, of which we will select the most advanced and efficient one: cSPADE. In order to build useful prediction rules, two factors have to be taken into account: temporal adequation (patterns that do not run for too long or inadequate periods) and their actual precision (removing the \emph{noise} introduced by events which are frequent but do not offer good predictive information).
+This method consists on finding frequent patterns in our databases in order to be used as predictive rules. Different algorithms exist to mine these frequent patterns, of which we will select the most advanced and efficient one: cSPADE. In order to build useful prediction rules, two factors have to be taken into account: temporal adequation (patterns that do not run for too long or inadequate periods) and their actual precision (removing the \emph{noise} introduced by events which are frequent but do not offer good predictive information).
 
-In order to being able to adequately extrapolate our acquired knowledge to periods not covered by our historical data, we must try and remove the specific characteristics of these databases. For this purpose, a special validation method will be used: the \emph{k-fold cross validation method}. This method separates the database into \emph{k} different learning and result sets and iterates the whole learning/validation procedure in all of them. This way, the result is a system with an average performance for all the different parts of the database, which avoids overfitting of our predictive rules for any specific dataset.
+In order to being able to adequately extrapolate our acquired knowledge to periods not covered by our historical data, we must try and remove the specific characteristics of these databases. For this purpose, a special validation method is defined, which avoids overfitting of our predictive rules for any specific dataset.
 
-Finally, an analysis of the results is gathered in this document, which allows us to see at first glance the kind of results obtained and their performance rating. The functionality of the acquired rules is also illustrated with examples of operation during selected periods of time.
+An analysis of the results is gathered in this document, which allows us to see at first glance the kind of results obtained and their performance rating. The functionality of the acquired rules is also illustrated with examples of operation during selected periods of time.
+
+Finally, several conclusions are obtained and summarised at the end of this document. The overall quality of the results is evaluated along with possible alternative methods to improve them. 
 
 \newpage
 \tableofcontents % indice de contenidos
@@ -350,8 +352,123 @@ OS & Ubuntu 11.10 Server \\
 \clearpage
 \section{Data clustering for complexity reduction}
 \label{sec:dataclustering}
+As seen in section~\ref{sec:search_parameters}, computation capabilities can significantly limit our search depth, forcing us to use lower depth values and therefore compromising the quality of the results. In order to be able to use higher depth values, we can either increase our computation capabilities or look for a way to decrease the complexity of the problem.
+
+Increasing capabilities is not a feasible option. Our server is actually running a top end configuration on which there is few possible room for improvement. Although memory or CPU speed could be increased, these improvements would be so small that our limitations would be reduced ever so slightly. The only option is therefore trying to divide our problem into different smaller problems.
+
+For this purpose, we will divide our data into several clusters, depending on the type of alarms. Thales' database already counts on alarm categorisation, dividing them into different types depending on which station we are working with. Alternatively, we can try to create clusters based on different criteria. It is important to note that in order to be able to use the obtained information in the whole system afterwards, cluster intersection must be zero for whichever criteria we follow. In other words, a specific type of event can only happen in one of the clusters, so that a relation found being true in one of them cannot be false in other situation.
+
+We will try two different approaches for this purpose: division by already defined alarm types, and clustering by type of physical elements.
+
+\subsection{Using already defined alarm types}
+\label{sec:using_event_type}
+The most immediate possible division is to divide our datasets into many containing only one type of alarm. This complies with the \emph{empty intersection} condition, as every different possible event can only fall into one of the categories. The most important limitation is that using this method, we won't be able to find rules relating alarms of different types. It is also important to note that for each of the stations, the event-type distribution is not uniform, and therefore different improvement in possible search depth will be achieved for each of the generated clusters.
+
+First of all, we will make an insight on the size of the resulting clusters for each of the stations. These sizes can be seen in figures \ref{fig:clusters_alb} to \ref{fig:clusters_sev}. At first glance we observe not only a very unequal distribution of alarms into these clusters, but also that some of them are unadequately small. For clusters whose size is less than tens of thousands alarms we can expect significantly worse results. Although such a small size allows us to use very high values for search depth, the amount of data available can be too small for any information to be extracted.
+
+The rule of thumb used to determine possible search depths for each of the clusters depending on their size is shown in table~\ref{tab:thumbrule}. This rule is the result of a trial and error procedure, and does not guarrantee the ability for computation as the real performance depends on the individual characteristics of the datasets.
+
+As a result, this clustering method allows us to perform much deeper searches at least in some of the groups. Taking the whole databases at once forced us to set a significantly low search depth value, which resulted either on very low quality results (few rules with low precision) or on the complete unability to perform the process with the available computation capabilities.
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/clusters_alb.png}
+\caption{Clusters and their size for Albacete station} \label{fig:clusters_alb}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/clusters_ant.png}
+\caption{Clusters and their size for Antequera station} \label{fig:clusters_ant}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/clusters_seg.png}
+\caption{Clusters and their size for Segovia station} \label{fig:clusters_seg}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/clusters_sev.png}
+\caption{Clusters and their size for Sevilla station} \label{fig:clusters_sev}
+\end{figure}
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline \headcell{Cluster size} & \headcell{Maximum number of antecedents} & \headcell{Minimum support} \\ 
+\hline 
+$<$ 10.000 & 7 & 0.01 \\ 
+\hline 
+10.000 - 50.000 & 5 & 0.1 \\ 
+\hline 
+50.000 - 100.000 & 5 & 0.2 \\ 
+\hline 
+$>$100.000 & 5 & 0.3 \\ 
+\hline 
+
+\end{tabular} 
+\caption{Search depth parameters for different cluster sizes} \label{tab:thumbrule}
+\end{center}
+\end{table}
+
+\subsection{Grouping similar physical elements}
+\label{sec:group_elements}
+As a second method, we will try and group alarms by the element which raises them. For our \emph{empty intersection} rule to be followed, we will need to make groups which gather \emph{all} the elements which can raise the same type of alarms. Unfortunately, information on the physical elements which raise the alarms is not directly tabulated and available in the provided databases. The corresponding element is instead included as part of the message shown to the operator, sometimes along with other parameters, and therefore this classification cannot be directly made.
+
+In order to achieve this, we will check, for all the different possible events, their associated \emph{ADDITIONAL\_INFOS} field, which depends on (but not corresponds to) the raising elements. By looking for similar naming patterns on said field, we might be able to find a way to perform this desired way of clustering. Most of the groups did not follow evident patterns at first sight, but after analysing all their relations with different alarms, we were able to come with several clusters. The created groups for Antequera station can be seen in table~\ref{tab:custom_clusters}. For example, \emph{ADDITIONAL\_INFOS} fields of the form E1, E2, E3... always were found in lights-related alarms, same as for the form R1, R2, R3... and therefore all the events falling into these conditions will be clustered into the \emph{lights} cluster.
+
+These groups do not follow any official categorisation made by Thales' engineers. Although an index of physical elements existed and was available, its relation with the alarms in the database was not direct. Furthermore, what we want to achieve is groups of elements which are likely to raise similar elements (and to follow similar patterns in their occurence) and therefore we do not need these groups to be actually made by exact classification of the types of elements.
+
+Comparison of results with and without this kind of clustering can be seen in figure~\ref{fig:group_vs_nogroup}. The number of high-precision rules significantly increases by using this kind of clustering. Further comments on the results can be found in section~\ref{sec:results}.
+
+This process, however, must be made manually looking for different patterns and elements which seem to raise the same type of events. Therefore, it is a very time consuming process and its not suitable for being applied systematically to all datasets. The provided data corresponds to the station of Antequera, for which we have performed the procedure in order to evaluate its possible benefits. In order for this to be suitable for general application, additional info should be provided in datasets which could allow faster automatic grouping.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline \headcell{ADDITIONAL\_INFOS pattern} & \headcell{Cluster} \\ 
+\hline 
+A00, A01, A02... & Switches \\ 
+\hline 
+10, 11, 12... 140 & Lights \\ 
+\hline 
+E1, E2, E3, E4 ... & Lights \\ 
+\hline 
+S1/1, S1/2 ... & Lights \\ 
+\hline 
+R1, R2, R3 ... & Lights \\ 
+\hline 
+M1, M2, M3 ... & Lights \\ 
+\hline 
+A|XX|XX & Communications \\ 
+\hline 
+B|XX|XX & Communications \\ 
+\hline 
+IM|XX|XX & Communications \\ 
+\hline 
+EC|XX|XX & Communications \\ 
+\hline
+EN-A, EN-B, EN-M & Electric network and power supply \\ 
+\hline   
+ALI\_XXX & Electric network and power supply \\ 
+\hline   
+Alimentacion XXX & Electric network and power supply \\ 
+\hline   
+V1, V2 ... & Rail tracks \\ 
+\hline   
+
+\end{tabular} 
+\caption{Clusters found for different patterns in ADDITIONAL\_INFOS field} \label{tab:custom_clusters}
+\end{center}
+\end{table}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/group_vs_nogroup.png}
+\caption{Number of rules by precision before and after grouping by similar elements} \label{fig:group_vs_nogroup}
+\end{figure}
+
 \clearpage
 \section{Results}
+\label{sec:results}
 In this section we will make a deep insight on the obtained data. Our goal was to generate different rulesets for each of our maintenance stations, each of them covering different time windows. Specifically, we have studied three different time windows: one day, two days and one week. This defines the observation period for our predictive work, which means not only the time span we will use as antecedents for our rules but also the time window within which our prediction can occur.
 
 The results are very different depending on which station and time period we chose. In this section we will analyse the results obtained for each of them from different perspectives.
@@ -660,6 +777,46 @@ As we do not have large sets of rules for all the stations, performing a deeper 
 \caption{Rule distribution by precision in Sevilla (1 day)} \label{fig:hist_sev1}
 \end{figure}
 
+\subsection{Predictable events by category}
+As we mentioned in section~\ref{sec:using_event_type}, one of the methods followed in order to being able to perform deep searches on our data was clustering by event types. This unavoidably leads to differences on the achievable performance for each of the different event types. This is caused not only by the different search depths which we were able to use in each of the different groups, but also by the individual nature of each of the event types: events in some of the clusters may be more likely to be related to others in the same cluster while for other types these relations may be more likely to be found to events in other clusters. 
+
+In order to analyse the effect of this clustering in the obtained results, we will analyse the category of the events the rules predict. This is, we will analyse the event type of the consequent of our rules. This distribution can be seen in figures \ref{fig:conseqtypes_alb7}, \ref{fig:conseqtypes_ant1}, \ref{fig:conseqtypes_seg1}, \ref{fig:conseqtypes_seg2}, \ref{fig:conseqtypes_seg7} and \ref{fig:conseqtypes_sev1}.
+
+We can see a completely uneven distribution in terms of rule generation for each event type. This is likely to be caused by two facts: nature of the events themselves (how unpredictable or related to other events they are) and frequency adequation (events which happen too often instead of only in specific situations might be harder to predict). Also, the different limit on search depth we were able to impose for the different groups also vastly affects results in this direction.
+
+It is specially interesting the situation in \emph{Antequera}, where we performed an alternative clustering method as mentioned in \ref{sec:group_elements}. In this station, we observe that all the rules fall into the category of \emph{FieldElementFailure} and \emph{Operation diagnosis communications}. Both groups of rules are quite similar in size, although the occurence of those alarm types in the whole database is significantly different. This indicates that this kind of clustering might significantly help in order to obtain more uniform results for all the event types.
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_alb7.png}
+\caption{Rule distribution by consequent type in Albacete (7 days)} \label{fig:conseqtypes_alb7}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_ant1.png}
+\caption{Rule distribution by consequent type in Antequera (1 day)} \label{fig:conseqtypes_ant1}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_seg1.png}
+\caption{Rule distribution by consequent type in Segovia (1 day)} \label{fig:conseqtypes_seg1}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_seg2.png}
+\caption{Rule distribution by consequent type in Segovia (2 days)} \label{fig:conseqtypes_seg2}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_seg7.png}
+\caption{Rule distribution by consequent type in Segovia (7 days)} \label{fig:conseqtypes_seg7}
+\end{figure}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth]{img/conseqtypes_sev1.png}
+\caption{Rule distribution by consequent type in Sevilla (1 day)} \label{fig:conseqtypes_sev1}
+\end{figure}
+
+
 \section{Example scenario}
 \label{sec:scenario}
 
@@ -708,6 +865,19 @@ As expected, when increasing the precision threshold we have less and less predi
 \clearpage
 
 \section{Conclusions}
+The results obtained after the development of the presented procedures are found to be satisfactory, as shown in section~\ref{sec:desc_results}. Large rule sets with high precision values have been found for several stations and different time windows.
+
+For this rulesets to be useful for Thales' operators, a implementation of a rule engine is necessary. This aspect with be covered in next stages of the project, and it is completely independent from the procedures described in this document which were used to obtain the predictive knowledge.
+
+Also, results have been found to vary significantly in terms of quantity and precision in different stations and time periods, as seen in section~\ref{sec:desc_results}. In order to obtain higher quality results, it is necessary to explore alternative methods which can get over the limitations found with the performed method. First of all, the used algorithms can be vastly optimised to perform much better in our specific scenario. When searching for frequent sequences, we cannot limit the number of terms in the \emph{consequent}, as the maximum number of terms in each member of the sequence is fixed by a single parameter. In our case, we do not want to use sequences with more than one element in the consequent (as explained in section~\ref{sec:rule_model}) but our algorithm is still generating them as sequence candidates. This increases the complexity of the algorithm significantly, as we are growing our candidates in both the antecedent and the consequent of the rule while we only need the antecedent to grow.
+
+Furthermore, as mentioned in section~\ref{sec:rule_model}, the candidates for rules are selected amongst sequences which are \emph{frequent}. Although this provides a good starting point in order to find predictive rules, we must perform two kinds of filtering in order to obtain the final rule sets: first by frequency, and later by precision. A new algorithm could be implemented in the same fashion as cSPADE, but performing only a filtering in terms of precision. This would not only save time and allow deeper searches, but also avoid disregarding those sequences which are not frequent but might lead to precise predictions.
+
+Additionally, as seen in section~\ref{sec:datamining}, there are many other types of data mining algorithms which could be used or adapted to our problem. Specifically, a parallell approach has been made using \emph{Bayesian Networks}. These networks provide a very useful mathematical model which can be used to predict information in a similar fashion than the rules. However, it usually requires a deep previous knowledge on the events of the system and their possible relations in order to obtain their full potential. After building some of these models and obtaining said information from Thales' engineers, the model based on \emph{association rules} was still found to perform much better in all terms. Additional research would be necessary in order to obtain better results with these alternative tools.
+
+Finally, we have found that one of the best and most immediate ways to increase the quality of the results is to divide the large datasets into smaller clusters. In section~\ref{sec:dataclustering} we have presented two possible clustering methods which have indeed improved the results significantly. Further improvement could be achieved by performing a deeper research on alternative clustering methods. Specifically, the method described in section~\ref{sec:group_elements} was found to increase peformance in very high rates. Developing a way to make this clustering method automatisable and directly feasible for all the stations would likely highly increase performance.
+
+Summarising, in order to obtain higher quality results, a way must be found to face limits in terms of computation capabilities. The server available for our project is powerful enough as to think of improving hardware. Therefore, software and data optimisation is the only way to obtain significant improvement in the results.
 
 \clearpage
 
