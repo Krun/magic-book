@@ -1,0 +1,74 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+
+% Allow the change of line spacing
+\usepackage{setspace}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames,table]{xcolor}
+
+%\usepackage{hyperref}
+%\usepackage{breakurl}
+
+%opening
+%\title{Trainmining}
+%\author{Grupo de Sistemas Inteligentes \\ Universidad Politécnica de Madrid}
+
+
+\begin{document}
+\newcommand\litem[1]{\item{\bfseries #1 }}
+\renewcommand{\arraystretch}{1.5} %Makes tables less crammed
+
+\newcommand\headcell[1]{%
+  \multicolumn{1}{c|}{\cellcolor{MidnightBlue}\bfseries\sffamily\textcolor{white}{#1}}
+}
+
+%\renewcommand{\abstractname}{Executive Summary}
+%\begin{abstract}
+%
+%\end{abstract}
+
+% Set line spacing to 1.5
+\onehalfspacing
+
+\include{entregable4_titlepage}
+%\maketitle
+
+\pagenumbering{roman}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary} % si queremos que aparezca en el índice
+This document describes the design and implementation of a prototype predictive module for Thales' railway maintenance network. This implementation relies on already existing predictive rules which have been previously obtained from data mining procedures.
+
+The prototype provides therefore a way to apply said obtained knowledge to actual situations, evaluating the rules and determining an output for each situation. It works as a rule-engine which takes the current situation as an input and outputs a list of predicted events along with an associated confidence for each of them. The system has been implemented in the form of a Java module, and can therefore be used as a standalone system or be integrated onto larger systems at convenience. It relies on the JBoss Drools Expert library, which provides an efficient and reliable rule-engine environment.
+
+In this document, the architecture of the implemented prototype will be explained on detail. Furthermore, performance specifications are described as a result of several testing procedures.
+
+
+\newpage
+\tableofcontents % indice de contenidos
+\addcontentsline{toc}{section}{Contents} % para que aparezca en el indice de 
+\cleardoublepage
+\addcontentsline{toc}{section}{List of Figures} % para que aparezca en el indice de contenidos
+\listoffigures % indice de figuras
+
+\cleardoublepage
+\addcontentsline{toc}{section}{List of tables} % para que aparezca en el indice de contenidos
+\listoftables % indice de tablas
+\cleardoublepage
+
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\section{Introduction}
+
+\section{Architecture}
+
+
+
+
+\bibliographystyle{plain} 
+\bibliography{datamining}
+
+\end{document}
+
+
