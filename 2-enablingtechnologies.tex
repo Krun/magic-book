@@ -1,0 +1,36 @@
+\chapter{Enabling Technologies}
+\label{chap:enabling_technologies}
+\section{Knowledge Discovery in Databases}
+The whole process we are approaching in this project is usually known as \emph{Data Mining}, or more generally, \emph{Knowledge Discovery in Databases}. A lot of research has been already done on this field which will serve as background for our project, as well as tools and algorithms which have been designed to treat similar problems and which we can adapt or use as base to develop our own\cite{chen1996data, fayyad1996kdd}.
+
+Knowledge Discovery in Databases - or \emph{KDD} - is a term used to describe the procedure of acquiring high-level knowledge from low-level data. As a formal definition, \emph{Knowledge Discovery} is the non-trivial extraction of implicit, previously unknown, and potentially useful information from data~\cite{frawley1992knowledge}. This knowledge is usually found in the form of patterns and relations between variables which were unlikely to be related.
+
+The KDD process involves several steps~\cite{feyyad1996data} which can be summarized as follows:
+
+\begin{enumerate}
+ \litem{Understanding the problem:} The first step involves understanding the environment we are studying and gaining relevant prior knowledge. In this step we must identify which goals we want to set for the knowledge discovery process. This is, we must identify the kind of knowledge we want to obtain and the data we can count on for this process.
+ \litem{Creating a target dataset:} We will usually need to select a subset of variables from the available datasets. While the system we are studying may need a lot of variables to log events or make data relations, we will not likely need all of them to characterize our problem. Reducing the dimensionality of the problem will provide better results and ease the following steps.
+ \litem{Data cleaning and preprocessing:} In this step we have to discern which data is actually relevant and significant for our study, and which is merely noise or outliers which should be disregarded. Operations such as noise modelling or mapping of missing and unknown values are also taken in this step.
+ \litem{Data mining:} For this step we must first have decided the purpose of the model derived by the data mining algorithm. For example, summarization, regression, clustering and others. According to our decision, some data mining algorithms will be more appropriate than others.
+ \litem{Interpretation of results:} Consists on interpreting the discovered patterns, removing those redundant or irrelevant and translating the useful ones into understandable terms.
+ \litem{Consolidation of discovered knowledge:} The discovered knowledge is finally consolidated in an appropriate form. Depending on the context of our project, it might be simply documented or integrated in predictive modules for the analysed systems.
+\end{enumerate}
+
+\emph{Data Mining} comprises a large amount of different algorithms which can be used for the Knowledge Discovery process. Depending on the nature of the data on which we will apply these algorithms, and on the kind of knowledge we expect or want to acquire, we will need algorithms of different types.
+
+Different algorithms can usually be classified in the following categories:
+
+\begin{enumerate}
+ \litem{Classification:} Learning a function that maps an item into predefined classes.
+ \litem{Regression:} Learning a function that maps an item to a predicted variable.
+ \litem{Segmentation:} Identifying a set of clusters to categorise the data.
+ \litem{Summarization:} Finding a compact description for the data.
+ \litem{Association:} Finding significant dependencies between different variables.\cite{Zhao2003association}.
+ \litem{Sequence analysis:} Finding frequent sequences or episodes in data~\cite{zhao2003sequential,weiss2002predicting}.
+\end{enumerate}
+
+\subsection{Existing Algorithms}
+\label{sec:algorithms}
+
+\section{The R language}
+\section{The Rule Engine}

@@ -1,3 +1,5 @@
+\chapter{Prototype Implementation}
+\label{chap:prototype}
 
 \section{Module description}
 \label{sec:module_description}
@@ -11,7 +13,7 @@ The implementation of a rule engine is not a trivial matter, and requires a sign
 
 \subsection{Parameters and interfaces}
 \label{sec:parameters_and_interfaces}
-Depending on our needs for each situation, our system can obtain predictions for several periods of time, different types of systems and different input lengths. Specifically, we count on rules for four different stations of different characteristics (Albacete, Antequera, Segovia and Sevilla) and for three different time windows (one day, two days and seven days). Each of these prediction modes needs a different type of input and needs to use a different set of rules. This distinction has therefore been made at the time of generating the rules, and now those rules need to be loaded accordingly to the kind of prediction we want to obtain.
+Depending on our needs for each situation, our system can obtain predictions for several periods of time, different types of systems and different input lengths. Specifically, we count on rules for four different stations of different characteristics (Stations A, B, C and D) and for three different time windows (one day, two days and seven days). Each of these prediction modes needs a different type of input and needs to use a different set of rules. This distinction has therefore been made at the time of generating the rules, and now those rules need to be loaded accordingly to the kind of prediction we want to obtain.
 
 In other words, said parameters (station type and time window) fixes the set of rules to be used and the length of the input to be provided. This association also works in the other direction: by using an specific rule set and an specific input, we are already defining the execution parameters. Therefore, both the station type and prediction time window are irrelevant for the correct function of our predictive module. It is responsibility of the operator or executing system to select the appropriate rule set and provide an appropriate input. This allows new execution options to be added or updated at any time, without the need of modifying the module in any way. If we generate a new set of rules expecting a whole month of input and which will generate a month of predictions, we just need to load it and know what it is generating. Also, if we generate rules for a new type of maintenance station we just need to load them on the module and provide an input according to that new type of station.
 
@@ -70,47 +72,47 @@ The specific list of sets which have been generated and provided can be seen in 
 \begin{tabular}{|c|c|c|c|c|}
 \hline \headcell{Rule set} & \headcell{Station} & \headcell{Observation} & \headcell{Prediction} & \headcell{Min. Confidence} \\ 
 \hline 
-albacete1d\_70.drl & Albacete & 1 day & next day & 70\% \\ 
+albacete1d\_70.drl & Station A & 1 day & next day & 70\% \\ 
 \hline  
-albacete7d\_70.drl & Albacete & 7 days & next 7 days & 70\% \\ 
+albacete7d\_70.drl & Station A & 7 days & next 7 days & 70\% \\ 
 \hline 
-antequera1d\_70.drl & Antequera & 1 day & next day & 70\% \\ 
+antequera1d\_70.drl & Station B & 1 day & next day & 70\% \\ 
 \hline 
-segovia1d\_70.drl & Segovia & 1 day & next day & 70\% \\ 
+segovia1d\_70.drl & Station C & 1 day & next day & 70\% \\ 
 \hline
-segovia2d\_70.drl & Segovia & 2 days & next 2 days & 70\% \\  
+segovia2d\_70.drl & Station C & 2 days & next 2 days & 70\% \\  
 \hline 
-segovia7d\_70.drl & Segovia & 7 days & next 7 days & 70\% \\  
+segovia7d\_70.drl & Station C & 7 days & next 7 days & 70\% \\  
 \hline 
-sevilla1d\_70.drl & Sevilla & 1 day & next day & 70\% \\ 
+sevilla1d\_70.drl & Station D & 1 day & next day & 70\% \\ 
 \hline
-albacete1d\_50.drl & Albacete & 1 day & next day & 50\% \\ 
+albacete1d\_50.drl & Station A & 1 day & next day & 50\% \\ 
 \hline 
-albacete7d\_50.drl & Albacete & 7 days & next 7 days & 50\% \\ 
+albacete7d\_50.drl & Station A & 7 days & next 7 days & 50\% \\ 
 \hline 
-antequera1d\_50.drl & Antequera & 1 day & next day & 50\% \\ 
+antequera1d\_50.drl & Station B & 1 day & next day & 50\% \\ 
 \hline 
-segovia1d\_50.drl & Segovia & 1 day & next day & 50\% \\ 
+segovia1d\_50.drl & Station C & 1 day & next day & 50\% \\ 
 \hline
-segovia2d\_50.drl & Segovia & 2 days & next 2 days & 50\% \\  
+segovia2d\_50.drl & Station C & 2 days & next 2 days & 50\% \\  
 \hline 
-segovia7d\_50.drl & Segovia & 7 days & next 7 days & 50\% \\  
+segovia7d\_50.drl & Station C & 7 days & next 7 days & 50\% \\  
 \hline 
-sevilla1d\_50.drl & Sevilla & 1 day & next day & 50\% \\ 
+sevilla1d\_50.drl & Station D & 1 day & next day & 50\% \\ 
 \hline
-albacete1d\_all.drl & Albacete & 1 day & next day & -- \\ 
+albacete1d\_all.drl & Station A & 1 day & next day & -- \\ 
 \hline  
-albacete7d\_all.drl & Albacete & 7 days & next 7 days & -- \\ 
+albacete7d\_all.drl & Station A & 7 days & next 7 days & -- \\ 
 \hline 
-antequera1d\_all.drl & Antequera & 1 day & next day & -- \\ 
+antequera1d\_all.drl & Station B & 1 day & next day & -- \\ 
 \hline 
-segovia1d\_all.drl & Segovia & 1 day & next day & -- \\ 
+segovia1d\_all.drl & Station C & 1 day & next day & -- \\ 
 \hline
-segovia2d\_all.drl & Segovia & 2 days & next 2 days & -- \\  
+segovia2d\_all.drl & Station C & 2 days & next 2 days & -- \\  
 \hline 
-segovia7d\_all.drl & Segovia & 7 days & next 7 days & -- \\  
+segovia7d\_all.drl & Station C & 7 days & next 7 days & -- \\  
 \hline 
-sevilla1d\_all.drl & Sevilla & 1 day & next day & -- \\ 
+sevilla1d\_all.drl & Station D & 1 day & next day & -- \\ 
 \hline
 
 \end{tabular} 
@@ -211,3 +213,7 @@ In general terms, the implementation of the module has been successful and compl
 
 \clearpage
 
+\bibliographystyle{plain} 
+\bibliography{datamining}
+
+\end{document}
