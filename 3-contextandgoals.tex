@@ -57,13 +57,14 @@ In figure~\ref{fig:demo_view} we can view an example use case. A maintenance ope
 \section{Data Description}
 For this project, Thales Group, a leader company in the development of railway systems in Spain is cooperating with the research group {\it Grupo de Sistemas Inteligentes} from the Universidad Politécnica de Madrid, with large expertise in the application of intelligent systems to real problems. Thales Spain has developed an advanced system called \emph{maintenance station}, which diagnoses, gathers and visualises different kind of events happening along the railway network. These maintenance stations comprise different advanced diagnosis systems, which can identify and report several kind of events happening along the lines which might require human intervention. These stations gather logs with all the events which have happened in the past, which will allow us to study and analyse the operation of these stations during the past.
 
-At the moment of writing this document, we count on data of three maintenance stations (B, C and D), which are located in Spain. Each of these stations controls a different railway line, and have different diagnosis systems and characteristics, as shown in table~\ref{tab:stations}. In this table we see that the three lines we are working with are of different types and have different diagnosis systems. Specifically, Stations B and C control high speed lines, while Station D controls a commuter line. Different types of lines will have different elements and systems, and results are therefore expected to be different in both groups. Furthermore, supervised systems are different in all the three stations, which means that alarms received from each of them will not necessarily be the same. Details on number of events and time span of the available data is given on table~\ref{tab:data_details}.
+At the moment of writing this document, we count on data of four maintenance stations (A, B, C and D), which are located in Spain. Each of these stations controls a different railway line, and have different diagnosis systems and characteristics, as shown in table~\ref{tab:stations}. In this table we see that the three lines we are working with are of different types and have different diagnosis systems. Specifically, Stations A, B and C control high speed lines, while Station D controls a commuter line. Different types of lines will have different elements and systems, and results are therefore expected to be different in both groups. Furthermore, supervised systems are different in all the three stations, which means that alarms received from each of them will not necessarily be the same. Details on number of events and time span of the available data is given on table~\ref{tab:data_details}.
 
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline \headcell{Name} & \headcell{Line type} & \headcell{Supervised systems} \\ 
 \hline
+\hline Station A & High Speed & SAM-E-L \\
 \hline Station B & High Speed & SAM-E-L \\ 
 \hline Station C & High Speed & ERTMS (levels 1 and 2) \\ 
 \hline Station D & Commuter & Diagnosis and Energy \\ 
@@ -75,21 +76,22 @@ ERMTS: European Rail Traffic Management System\\
 SAM-E-L: Sistema de Ayuda al Mantenimiento para Ence (Local)\\
 
 \end{center} 
-\caption {Maintenance Stations} \label{tab:stations} 
+\caption {List of studied maintenance Stations} \label{tab:stations} 
 \end{table}
 
 \begin{table}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
-\hline \headcell{Station} & \headcell{N. of events} & \headcell{Start date} & \headcell{End date} & \headcell{Period} \\ 
+\hline \headcell{Station} & \headcell{Events} & \headcell{Dates} & \headcell{Period} \\ 
 \hline
-\hline Station B & 185274 & 18-01-2010 & 31-05-2010 &  5 months \\ 
-\hline Station C & 304408 & 30-11-2007 & 03-06-2009 &  1.5 years \\ 
-\hline Station D & 118026 & 17-05-2011 & 09-04-2012 &  1 year \\ 
+\hline Station A & 545774 & 02/12/2010 - 03/10/2012 & 2 years \\
+\hline Station B & 239470 & \begin{tabular}[C]{@{}c@{}}18/01/2010 - 31/05/2010\\10/02/2012 - 20/07/2012\end{tabular}  &  10 months \\ 
+\hline Station C & 304408 & 30-11-2007 to 03-06-2009 &  1.5 years \\ 
+\hline Station D & 118026 & 17-05-2011 to 09-04-2012 &  1 year \\ 
 \hline 
 \end{tabular}
 \end{center} 
-\caption {Available data} \label{tab:data_details} 
+\caption {Summary of available data} \label{tab:data_details} 
 \end{table}
 
 \subsection{Database description}
@@ -97,79 +99,57 @@ SAM-E-L: Sistema de Ayuda al Mantenimiento para Ence (Local)\\
 In order to properly process the data provided in form of database backups, it is of essential importance that we completely understand how data is represented in databases. We will analyse the structure and how data is represented in the provided databases (one for each station). Each of these databases corresponds to a single \emph{maintenance station}, which comprises a whole railway line with several elements along it. The elements with diagnosis systems which can raise alarms are called \emph{installations}, and have different sets of sensors and other systems to control \emph{field elements}. An schematic representation of this architecture is represented in figure~\ref{fig:arch_stations}. The detailed description of available systems and subsystems is of few interest to us. Initially we will only need to differentiate between maintenance stations and installations.
 
 \begin{figure}[hbt]
-\includegraphics[width=\textwidth]{./img/arch_stations.png}
+\includegraphics[width=\textwidth]{./img/arch_stations.pdf}
 \caption{Simplified diagram of the maintenance systems architecture} \label{fig:arch_stations}
 \end{figure}
 
-Each \emph{maintenance station} has its own unique database, which is of great convenience in order to treat different stations independently. We will start analysing the structure of the main tables of said databases. Due to the high complexity of the maintenance stations, there are a vast amount of tables with configuration parameters and other operational values which are not of interest for our purposes. With assistance from Thales engineers, we have reduced the tables only to those which characterise registered alarms. A total of 4 different tables is used in order to register this information, which are the following:
+Each \emph{maintenance station} has its own unique database, which is of great convenience in order to treat different stations independently. We will start analysing the structure of the main tables of said databases. Due to the high complexity of the maintenance stations, there are a vast amount of tables with configuration parameters and other operational values which are not of interest for our purposes. With assistance from Thales engineers, we have reduced the tables only to those which characterise registered alarms. A total of three different tables are used in order to register this information, which are the following:
 
 \begin{description}
-\item[Table ER\_ERRORS] This table contains an entry for every alarm received by the maintenance station. Its fields are detailed on table~\ref{tab:table_er_errors}.
-\item[Table IG\_INSTALLATIONGENERAL] This table contains information on all the installations managed by the maintenance station. Its fields are detailed on table~\ref{tab:table_ig_installationgeneral}
-\item[Table IG\_NODO\_INSTALLATION] This table gathers additional information on installations which are nodes. Nodes are installations which can raise alarms but need a parent installation to send them to the maintenance station. Its fields are detailed on table~\ref{tab:table_ig_nodo_installation}
-\item[ERS\_ERRORS\_SAM\_ENCE] This table contains detailed information about the alarms. Its fields are detailed on table~\ref{tab:table_ers_errors_sam_ence}
-\item[ERH\_ERRORS\_HSL1] This table is equivalent to ERS\_ERRORS\_SAM\_ENCE. Maintenance stations use one or the other depending on how they receive the alarms. Its only difference with ERS\_ERRORS\_SAM\_ENCE is that registers the method used to receive the alarm. For our purposes it will be treated exactly as its equivalent, and therefore its structure can also be reviewed in table~\ref{tab:table_ers_errors_sam_ence}
+\item[ALARMS table] This table contains an entry for every alarm received by the maintenance station. Its fields are detailed on table~\ref{tab:table_er_errors}.
+\item[INSTALLATIONS table] This table contains information on all the installations managed by the maintenance station. Its fields are detailed on table~\ref{tab:table_ig_installationgeneral}
+\item[ALARM\_DETAILS table] This table contains detailed information about the alarms. Its fields are detailed on table~\ref{tab:table_ers_errors_sam_ence}
 \end{description}
 
-Concluding, for each alarm we will have a timestamp and an alarm identifier in table ER\_ERRORS. Alarm identifier is a foreign key which points to table ERS\_ERRORS\_SAM\_ENCE (or equivalent) in which further details of the alarm are saved. Among these details, we can find an installation identifier which specifies which installation has produced the alarm. That identifier is also a foreign key pointing to table DVNI\_INSTALLATIONCODE, in which further details about the installation are stored. Further details on all the database fields are given in tables~\ref{tab:table_er_errors}, \ref{tab:table_ig_installationgeneral}, \ref{tab:table_ig_nodo_installation} and \ref{tab:table_ers_errors_sam_ence}.
+Concluding, for each alarm we will have a timestamp and an alarm identifier in table ALARMS. Alarm identifier is a foreign key which points to table ALARM\_DETAILS in which further details of the alarm are saved. Among these details, we can find an installation identifier which specifies which installation has produced the alarm. That identifier is also a foreign key pointing to table INSTALLATIONS, in which further details about the installation are stored. Further details on all the database fields are given in tables~\ref{tab:table_er_errors}, \ref{tab:table_ig_installationgeneral} and \ref{tab:table_ers_errors_sam_ence}.
 
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
  \hline \headcell{Field name} & \headcell{Description} \\
  \hline
- \hline DVNI\_ERRORNUMBER & Alarm identifier \\
- \hline DVNS\_ERRORTIME & Time-stamp for the alarm \\
- \hline DVNI\_INSTALLATIONCODE & Code of the installation in which the alarm was raised \\
- \hline DVNI\_SENDERINSTALLATIONCODE & Code of the installation from which the alarm was sent (might be different from the one which raised it) \\
+ \hline ERRORNUMBER & Alarm identifier \\
+ \hline ERRORTIME & Time-stamp for the alarm \\
+ \hline INSTALLATIONCODE & Code of the installation in which the alarm was raised \\
  \hline
 \end{tabularx}
-\caption{Detail of fields on table ER\_ERRORS} \label{tab:table_er_errors}
+\caption{Detail of fields on table ALARMS} \label{tab:table_er_errors}
 \end{table}
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
  \hline \headcell{Field name} & \headcell{Description} \\
  \hline
- \hline DVNI\_INSTALLATIONCODE & Installation identifier  \\
- \hline DVNI\_SYSTEMCODE & Type of system, as defined in the ``SG\_SYSTEMSGENERAL'' table \\ 
- \hline DVNI\_VERSION & System version \\
- \hline DVAC\_SHORTNAME & Short name of the installation \\
- \hline DVAC\_INSTALLATIONNAME & Name of the installation \\
- \hline DVAC\_LOCATION & Location for the installation \\
- \hline CHK\_IS\_NODE & Whether it is a node (doesn't directly send alarms, only raise them) or not \\
+ \hline INSTALLATIONCODE & Installation identifier  \\
+ \hline SHORTNAME & Short name of the installation \\
+ \hline LOCATION & Location for the installation \\
  \hline
 \end{tabularx}
-\caption{Detail of fields on table IG\_INSTALLATIONGENERAL} \label{tab:table_ig_installationgeneral}
+\caption{Detail of relevant fields on table INSTALLATIONS} \label{tab:table_ig_installationgeneral}
 \end{table}
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
  \hline \headcell{Field name} & \headcell{Description} \\
  \hline
- \hline IG\_NODO\_INSTALLATION & Identifier of the installation which is a node \\
- \hline DVNI\_FATHER\_INSTALLATION & Identifier of the parent installation \\
- \hline
-\end{tabularx}
-\caption{Detail of fields on table IG\_NODO\_INSTALLATION} \label{tab:table_ig_nodo_installation}
-\end{table}
-
-\begin{table}
-\begin{tabularx}{\textwidth}{|l|X|}
- \hline \headcell{Field name} & \headcell{Description} \\
- \hline
- \hline DVNI\_ERRORNUMBER & Alarm identifier \\
- \hline MESSAGE\_ID & Unique alarm identifier \\
- \hline MESSAGE\_TYPE & Type of alarm, always set as ``notification'' (not relevant) \\
- \hline INVOKE\_TYPE & Tells whether the alarm has generated itself due to a connection or disconnection (if type is ``node'') or is generated by a diagnosis system (``saml'') or energy system (``energy'') \\
- \hline INVOKE\_NAME & Irrelevant, always set to ``diagnosis'' \\
+ \hline ERRORNUMBER & Alarm identifier \\
  \hline EVENT\_TYPE & Defines the type of alarm which has been generated. Its possible values are listed in table~\ref{tab:field_event_type}. \\
  \hline ADDITIONAL\_TEXT & Alarm code \\
  \hline ADDITIONAL\_INFOS & Additional parameters to be shown in error message \\
- \hline DVNI\_ERRORCATEGORY & Alarm severity. Values from 1 to 5 indicating importance of the alarm, or -1 if the alarm indicates recovery from a previous failure. \\
+ \hline ERRORCATEGORY & Alarm severity. Values from 1 to 5 indicating importance of the alarm, or -1 if the alarm indicates recovery from a previous failure. \\
  \hline
 \end{tabularx}
-\caption{Detail of fields on table ERS\_ERRORS\_SAM\_ENCE} \label{tab:table_ers_errors_sam_ence}
+\caption{Detail of fields on table ALARM\_DETAILS} \label{tab:table_ers_errors_sam_ence}
 \end{table}
 
 \begin{table}
@@ -309,7 +289,7 @@ For this purpose, the R language provides a large amount of useful tools which c
 \subsection{Event type distribution}
 The first analysis we will perform consists on checking which event types appear in each maintenance station, and which percentage of the total amount of alarms corresponds to each of them. This will help us understand the nature of the events which are usually happening on our railway line.
 
-First of all we will obtain a list of all the types found in each of the stations. We already described in table~\ref{tab:field_event_type} all the possible values for this field, but depending on the diagnosis systems installed on each of the stations, a different subset of them will be used. The list of events for each of the stations is given in tables \ref{tab:field_event_type_antequera} (Station B), \ref{tab:field_event_type_sevilla} (Station D) and \ref{tab:field_event_type_segovia} (Station C).
+First of all we will obtain a list of all the types found in each of the stations. We already described in table~\ref{tab:field_event_type} all the possible values for this field, but depending on the diagnosis systems installed on each of the stations, a different subset of them will be used. The list of events for each of the stations is given in tables \ref{tab:field_event_type_antequera} (Stations A, B and D) and \ref{tab:field_event_type_segovia} (Station C).
 
 \begin{table}
 \begin{tabularx}{\textwidth}{|l|X|}
@@ -324,24 +304,7 @@ First of all we will obtain a list of all the types found in each of the station
   \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
   \hline
 \end{tabularx}
-\caption{Event types found in Station A} \label{tab:field_event_type_antequera}
-\end{table}
-
-\begin{table}
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline \headcell{Event type} & \headcell{Description} \\
-  \hline
-  \hline fieldElementAlarm & Alarm related to a field element \\
-  \hline fieldElementFailure & Failure in a field element \\
-  \hline operatorInformation & Information to the operator \\
-  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
-  \hline internalDiagnosis & Internal diagnosis of a system \\
-  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
-  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
-  \hline Other & other \\
-  \hline
-\end{tabularx}
-\caption{Event types found in Station D} \label{tab:field_event_type_sevilla}
+\caption{Event types found in Stations A, B and D} \label{tab:field_event_type_antequera}
 \end{table}
 
 
@@ -360,10 +323,16 @@ First of all we will obtain a list of all the types found in each of the station
 \caption{Event types found in Station C} \label{tab:field_event_type_segovia}
 \end{table}
 
-From these tables we can observe that alarm types in Stations B and D are the same (except for unclassified alarms in Station D marked as ``other''). From this we can infer that diagnosis systems in these two stations are the same or very similar, as confirmed by Thales' engineers. Station C however presents a different - although also expectedly similar - set of alarm categories. This is an indicator of diagnosis systems being very different in Station C than in the other two stations, as confirmed by Thales' engineers.
+From these tables we can observe that alarm types in Stations A, B and D are the same. From this we can infer that diagnosis systems in these two stations are the same or very similar, as confirmed by Thales' engineers. Station C however presents a different - although also expectedly similar - set of alarm categories. This is an indicator of diagnosis systems being very different in Station C than in the other two stations, as confirmed by Thales' engineers.
 
-For better overview of distribution of these alarm types, we will create charts of their respective percentages for each of the stations. These charts can be seen in figures \ref{fig:antequera_chart} (Station B), \ref{fig:segovia_chart} (Station C) and \ref{fig:sevilla_chart} (Station D).
+For better overview of distribution of these alarm types, we will create charts of their respective percentages for each of the stations. These charts can be seen in figures \ref{fig:albacete_chart} (Station A), \ref{fig:antequera_chart} (Station B), \ref{fig:segovia_chart} (Station C) and \ref{fig:sevilla_chart} (Station D).
 
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/albacete_graph.png}
+ \caption{Alarm information for Station A}
+ \label{fig:albacete_chart}
+\end{figure}
 \begin{figure}[htb]
  \centering
  \includegraphics[width=\textwidth]{./img/antequera_graph.png}
@@ -385,15 +354,20 @@ For better overview of distribution of these alarm types, we will create charts 
 
 \clearpage
 
-We can see that in all of the stations, a single alarm type predominates among all of them. Specifically, we have a vast majority of communication alarms in Stations B and C, and a majority of field element failure alarms in Station D. This is not surprising due to the considerable differences between all of them, but can become a problem as the other categories may be too small compared to these main ones when performing Data Mining techniques, obtaining less information - or none at all - from them.
+We can see that in all of the stations, a single alarm type predominates among all of them. Specifically, we have a vast majority of communication alarms in Stations B and C, and a majority of field element failure alarms in Stations A and D. This is not surprising due to the considerable differences between all of them, but can become a problem as the other categories may be too small compared to these main ones when performing Data Mining techniques, obtaining less information - or none at all - from them.
 
 In this direction, it is possible that further actions are required in order to compensate these differences, and avoid that more frequent alarms overshadow the less frequent ones.
 
 \subsection{Daily correlation}
 In order to find further differences or similarities between the different stations, we will observe how alarm types are correlated to each others\cite{edwards1976introduction}. That is, how frequent is to find alarms of two specific types happening together during the same short period. For a first insight, we will analyse correlation during daily observations. This correlation information will not be of immediate help in order to predict alarms, as predicting the most frequent alarm type given some conditions is of very little - if any - help. However, it will give us a first idea on how strongly alarms are related to each others.
 
-The result of this correlation is represented in figures \ref{fig:anteq_corr} (Station B), \ref{fig:segovia_corr} (Station C) and \ref{fig:sevilla_corr} (Station D).
+The result of this correlation is represented in figures \ref{fig:albacete_corr} (Station A), \ref{fig:anteq_corr} (Station B), \ref{fig:segovia_corr} (Station C) and \ref{fig:sevilla_corr} (Station D).
 
+\begin{figure}[htb]
+ \centering
+ \includegraphics[width=\textwidth]{./img/albacete_corr.png}
+ \caption{Daily correlation for Station A} \label{fig:albacete_corr}
+\end{figure}
 \begin{figure}[htb]
  \centering
  \includegraphics[width=\textwidth]{./img/antequera_corr.png}
@@ -412,38 +386,16 @@ The result of this correlation is represented in figures \ref{fig:anteq_corr} (S
 
 \clearpage
 
-At first sight, we can affirm that these relations are different even in stations B and D, which we found to have similar diagnosis systems. This indicates that, even with similar diagnosis systems, the systems conforming both lines are different. This is indeed confirmed by Thales' engineers, as Station B controls a high speed line, while Station D corresponds to a commuter line.
+At first sight, we can affirm that these relations are different even in stations A, B and D, which we found to have similar diagnosis systems. This indicates that, even with similar diagnosis systems, the systems conforming both lines are different. This is indeed confirmed by Thales' engineers, as Stations A and B control high speed lines, while Station D corresponds to a commuter line.
 
 Furthermore, we can see strong correlations in Station D (Field element failure and operator information) and Station C (Communications alarms and processing error alarms). As we don't have deep information of the nature of these categories, we can't affirm that this high correlation is due to any causal relation. However, we observe that both these cases show high correlation for the type of alarm which is more frequent in each station, so uneven distribution of alarms might be the cause of this apparent relation between alarms.
 
 From this analysis we can conclude the significant differences in alarm relations between stations, confirming our first thoughts of impossibility of reducing the problem by generalising and merging data from different stations. Further analysis using specific alarm identifiers instead of categories will be needed to obtain relevant results.
 
-\subsection{Hourly timeline}
-As an additional first analysis, we wanted to overview the variation of alarm occurrence during the day. During a day, high differences in environment can be experimented which can affect systems in different ways. For instance, temperatures or train affluence can be very different from 4:00 AM to 1:00 PM. These differences can also be found during higher periods, for instance between weekdays and weekends, or between summer time and winter. To start with a specific observation period, we will perform a first analysis between day hours, leaving the other cases for future stages if considered adequate.
-
-Charts with this analysis can be seen in figures \ref{fig:antequera_timeline} (Station B), \ref{fig:segovia_timeline} (Station C) and \ref{fig:sevilla_timeline} (Station D).
-
-\begin{figure}[htb]
- \centering
- \includegraphics[width=\textwidth]{./img/antequera_timeline.png}
- \caption{Hourly distribution for Station B (stacked)} \label{fig:antequera_timeline}
-\end{figure}
-\begin{figure}[htb]
- \centering
- \includegraphics[width=\textwidth]{./img/segovia_timeline.png}
- \caption{Hourly distribution for Station C (stacked)} \label{fig:segovia_timeline}
-\end{figure}
-\begin{figure}[htb]
- \centering
- \includegraphics[width=\textwidth]{./img/sevilla_timeline.png}
- \caption{Hourly distribution for Station D (stacked)} \label{fig:sevilla_timeline}
-\end{figure}
-
 \clearpage
 
 \section{Working methods}
-\label{sec:methods}
-For the development of this project, we have found a vast amount of useful tools and software which will provide an invaluable help in the different processes of our work. The main tool used will be the \emph{R} language\cite{ihaka1996r}, a very powerful tool commonly used for handling large amounts of data in an efficient way, and for which a vast amount of tools are available for our needs. R, and the IDE we are using, \emph{RStudio}\cite{racine2012rstudio} are open source software and available at no cost.
+\label{sec:methods} For the development of this project, we have found a vast amount of useful tools and software which will provide an invaluable help in the different processes of our work. The main tool used will be the \emph{R} language\cite{ihaka1996r}, a very powerful tool commonly used for handling large amounts of data in an efficient way, and for which a vast amount of tools are available for our needs. R, and the IDE we are using, \emph{RStudio}\cite{racine2012rstudio} are open source software and available at no cost.
 
 Due to licensing and compatibility issues, we are not able to use \emph{Microsoft SQL Server} databases to handle data. This is highly inconvenient as the data provided by Thales is in form of MS SQL backup files, which we needed to migrate to a compatible system of our choice: \emph{MySQL}. Given the tabular nature of the data, another solution based on plain text files would not be recommendable - although possible to handle with R - at least at the earliest stages until we analyse all the information and reduce the number of variables to export. In order to perform these migration tasks, a \emph{Windows} platform with \emph{Microsoft SQL Server Express} was required. Migration was successfully possible after slight modification of indexes and field definitions to fix compatibility issues. Once in MySQL format, we can query our data from RStudio without being limited to any kind of platform type or operative system, and will indeed perform further stages of the project under \emph{Unix} platforms.
 
@@ -455,10 +407,8 @@ Among all the available algorithms which can be useful for our project, we have 
 \hline
 \hline Perform a preliminary statistical analysis to set the project grounds & Compulsory & Statistical analysis with R \\ 
 \hline Identify differences between maintenance stations & Compulsory & Statistical analysis with R \\ 
-\hline Obtain rules to predict alarms using data of other alarms occurrence & Compulsory & Data Mining algorithms with R \\ 
-\hline Obtain a Bayesian network to overview causal relations between alarms & Compulsory & Bayesian Networks with GeNIe/SMILE \\ 
+\hline Obtain rules to predict alarms using data of other alarms occurrence & Compulsory & Data Mining algorithms with R \\  
 \hline Validate and evaluate rule sets. Determine confidence of predictions & Compulsory & Cross-validation and confidence analysis with R \\ 
-\hline Extract additional rules from Bayesian network for rule-form implementation & Desirable & GeNIE/SMILE \\ 
 \hline Identify rule sets which can be applied to different station types & Desirable & Inter-station cross-validation with R \\ 
 \hline Obtain rules to predict events using data of system and environment variables & Optional & Data Mining algorithms with R \\ 
 \hline Identify which system or environment variables are more decisive for alarm prediction & Optional & Data Mining algorithms with R \\ 
@@ -474,6 +424,6 @@ The most important thing before starting any other step, is to completely unders
 
 At this point, we have already treated all received data in order to be able to freely handle it without restrictions from any desired system. Required conversions have been performed and all data is already prepared to be loaded and used in R scripts.
 
-We have also defined the learning objectives for the project, and set a ground to achieve them from an \emph{Knowledge Discovery in Databases} approach. Furthermore, we have made a first insight into \emph{Data Mining} techniques and performed a first analysis on their adequacy for our project. Initial tools have already been selected: cSPADE and GeNIe/SMILE.
+We have also defined the learning objectives for the project, and set a ground to achieve them from an \emph{Knowledge Discovery in Databases} approach. Furthermore, we have made a first insight into \emph{Data Mining} techniques and performed a first analysis on their adequacy for our project.
 
 In the next stage of Trainmining, we will need to make a deeper insight into the provided databases. The procedures which we have already defined (time discretion and definition of observation times) will have to be performed, selecting the exact variables among all of them which are registered for each alarm.

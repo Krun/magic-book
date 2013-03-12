@@ -142,12 +142,8 @@ A diagram of the whole process can be seen in figure~\ref{fig:prototypeGenProces
 \label{sec:structure_of_rules_and_sets}
 In this section we will now analyse the actual structure of our rules and their conversion to the Drools syntax. We will take the following rule as an illustrating example:
 
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               framesep=2mm]{java}
+\begin{framed}
+\begin{lstlisting}[style=mono]
 "<{
 	saml.status.energy_net1_not_present
 	saml.status.energy_net2_not_present
@@ -158,18 +154,15 @@ In this section we will now analyse the actual structure of our rules and their 
 }>",
 0.83833333,
 0.089034423
-\end{minted}
+\end{lstlisting}
+\end{framed}
 
 That is the appearance of a prediction rule in the format of R data frame. Lines 2, 3 and 4 are the antecedents, line 6 is the predicted event and rule 8 is the precision of the rule. The last number on line 9 is the recall of the rule, an evaluation value which is of no use at this moment.
 
 The same rule in Drools syntax would looks as follows:
 
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               framesep=2mm]{java}
+\begin{framed}
+\begin{lstlisting}[style=mono]
 rule "rule0"
     when 
         Alarm(iid : installationID, alarmCode 
@@ -186,7 +179,8 @@ rule "rule0"
         			"fieldElementFailure",iid,0.83833333);
         resultList.add(p);
 end
-\end{minted}
+\end{lstlisting}
+\end{framed}
 
 We can see here the additions mentioned in section~\ref{sec:description_of_rule_sets}, regarding installation code and event type (which is hardcoded here to "filedElementFailure"). The resultList object conforms the output which will be returned by Drools to our module, containing all the generated possible events.
 
@@ -212,8 +206,3 @@ Integration is also possible within any other kind of system, due to the impleme
 In general terms, the implementation of the module has been successful and completely fulfils our goals.
 
 \clearpage
-
-\bibliographystyle{plain} 
-\bibliography{datamining}
-
-\end{document}
