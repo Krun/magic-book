@@ -28,7 +28,7 @@
             pdfsubject={Master Thesis},
             pdfkeywords={R, Data Mining, Sequences, Alarms, Event Prediction},
             pdfproducer={PDFTex},
-	    colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,hypertexnames=false]{hyperref}
+            colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,hypertexnames=false]{hyperref}
 
 %\usepackage{longtable}
 
@@ -67,13 +67,25 @@
    xrightmargin=8pt
 }
 
-\usepackage{titlesec}
+\definecolor{chapterdetails}{HTML}{6DBAFF}
+
+\usepackage[sf,bf]{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\Large\raggedleft}
+  {\normalfont\Large\sffamily\raggedleft}
   {\vspace{5cm}\MakeUppercase{\chaptertitlename}%
-    \rlap{ \resizebox{!}{1.5cm}{\thechapter} \rule{5cm}{1.5cm}}}
-  {10pt}{\Huge}
+    \rlap{ \resizebox{!}{1.5cm}{\thechapter} \color{chapterdetails}\rule{5cm}{1.5cm}}}
+  {10pt}{\Huge}[{\color{chapterdetails}\titlerule[0.8mm] }]
 \titlespacing*{\chapter}{0pt}{30pt}{20pt}
+
+%\titleformat{\section}{\large\sffamily\bfseries}{\thesection}{1em}{}
+
+
+\newenvironment{chapterintro}
+{% This is the begin code
+\large\it
+}
+{% This is the end code
+\cleardoublepage}
 
 
 % Tick symbols
@@ -96,100 +108,27 @@
 \renewcommand{\arraystretch}{1.5} %Makes tables less crammed
 
 \newcommand\headcell[1]{%
-  \multicolumn{1}{c|}{\cellcolor{DodgerBlue}\bfseries\sffamily\textcolor{white}{#1}}
+  \multicolumn{1}{|c|}{\cellcolor{DodgerBlue}\bfseries\sffamily\textcolor{white}{#1}}
 }
 
+
 %Cuadros por tablas
-\renewcommand{\listtablename}{Tables Index}
-\renewcommand{\tablename}{Table} 
+%\renewcommand{\listtablename}{Tables Index}
+%\renewcommand{\tablename}{Table} 
 
 % \renewcommand*{\lstlistingname}{List of X}
 
 \pagenumbering{Roman}
 
-\thispagestyle{empty}
-\vspace*{3\baselineskip}
-{\large{\bf PROYECTO FIN DE CARRERA}}
-\vspace{0.5cm}
-
-\begin{rm}
-\begin{tabular}{p{3cm}p{10cm}}
-\textbf{Título:} & Titulo en español\\ 
-\textbf{Título (inglés):} & Application of data mining techniques for failure prediction in a railway maintenance system\\ 
-\textbf{Autor:} & Adrián Pérez Orozco \\ 
-\textbf{Tutor:} & Carlos A. Iglesias Fernández\\ 
-\textbf{Departamento:} & Ingeniería de Sistemas Telemáticos \\ 
-\end{tabular} \end{rm} \vspace{1cm}
-
-{\large{\bf MIEMBROS DEL TRIBUNAL CALIFICADOR}} \vspace{0.5cm}
-
-\begin{rm}
-\begin{tabular}{p{3cm}p{10cm}}
-\textbf{Presidente:} & Gregorio Fernández Fernández\\
-\textbf{Vocal:} & Mercedes Garijo Ayestarán\\
-\textbf{Secretario:} & Carlos Ángel Iglesias Fernández\\
-\textbf{Suplente:} & Marifeli Sedano Ruiz
-\end{tabular}
-\end{rm}
-\vspace{1cm}
-
-{\large{\bf FECHA DE LECTURA:}}
-\vspace{1cm}
-
-{\large{\bf CALIFICACIÓN:}}
-\pagestyle{empty}
-\cleardoublepage
-\vspace*{\baselineskip}
-\begin{center}
-	{\LARGE\rm\textbf{UNIVERSIDAD POLITÉCNICA DE MADRID}\\
-	\vspace{1.0cm}
-	 ESCUELA TÉCNICA SUPERIOR DE\\ INGENIEROS DE TELECOMUNICACIÓN
-	  }  \\
-
-	 {\Large\rm Departamento de Ingeniería de Sistemas Telemáticos\\
-	 Grupo de Sistemas Inteligentes  }  \\
-
-\begin{figure}[!htbp]
-	\centering
-    \includegraphics[width=0.7\textwidth]{img/logo_etsit.jpg}
-
-\end{figure}
-	\vspace{1.0cm}
-	{{\LARGE\rm PROYECTO FIN DE CARRERA\\
-	\vspace{1.0cm}
-	 \textbf{ APPLICATION OF DATA MINING TECHNIQUES FOR FAILURE PREDICTION IN A RAILWAY MAINTENANCE SYSTEM} }}  \\
-	 \vspace{1.0cm}
-     \Large\rm\textbf{Alumno:} Adrián Pérez Orozco\\
-	 \textbf{Tutor:} Dr. Carlos Ángel Iglesias Fernández\\
-     \textbf{Ponente:} Dr. Carlos Ángel Iglesias Fernández\\
-	 \vspace{1.0cm}
-	 Marzo 2013
-\end{center}  
-
-\cleardoublepage
-
-\begin{tabular}{p{10cm}p{4cm}}
-&\\
-&\\
-&\\
-&\\
-&\\
-&\\
-&\\
-&\\
-&\\
-&\emph{ }\\
-&\emph{ }\\
-\end{tabular}
-
+\include{0-preamble}
 \cleardoublepage
 
 \include{A-resumen}
 \cleardoublepage
 \include{B-abstract}
 \cleardoublepage
-\include{C-acknowledgement}
-\cleardoublepage
+%\include{C-acknowledgement}
+%\cleardoublepage
 \include{D-agradecimientos}
 \cleardoublepage
 \include{E-contents}
@@ -198,9 +137,10 @@
 %Header style
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[RO]{\slshape \rightmark}
-\fancyhead[LE]{\slshape \leftmark}
-\fancyfoot[C]{\thepage}
+\fancyhead[RO]{\sffamily \slshape \rightmark}
+\fancyhead[LE]{\sffamily \slshape \leftmark}
+%\renewcommand{\footrulewidth}{0.4pt} % grosor de la línea del pie
+\fancyfoot[OR,EL]{\rmfamily \thepage} % texto derecha del pie
 \pagenumbering{arabic}
 
 \include{1-introduction}
@@ -210,7 +150,10 @@
 \include{5-prototype}
 \include{6-conclusions}
 
-\bibliographystyle{plain} 
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{unsrt}
 \bibliography{datamining}
 
 \end{document}
