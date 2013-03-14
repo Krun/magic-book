@@ -1,5 +1,12 @@
 \chapter{Context and Goals definitions}
 \label{chap:context_and_goals}
+\begin{chapterintro}
+This chapter contains further information on the project itself. We will start defining the context, scope and objectives for the project, which will as well define our \emph{learning objectives}.
+
+Further details on the available databases will be also given. Starting from their structure and size and finishing with a detailed analysis from a statistical point of view. Furthermore, we will analyse the needed steps -if any- in order to use this data with the chosen algorithms.
+
+
+\end{chapterintro}
 
 \section{Context Definition}
 \label{sec:context}
@@ -143,7 +150,7 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
  \hline \headcell{Field name} & \headcell{Description} \\
  \hline
  \hline ERRORNUMBER & Alarm identifier \\
- \hline EVENT\_TYPE & Defines the type of alarm which has been generated. Its possible values are listed in table~\ref{tab:field_event_type}. \\
+ \hline EVENT\_TYPE & Defines the type of alarm which has been generated. \\
  \hline ADDITIONAL\_TEXT & Alarm code \\
  \hline ADDITIONAL\_INFOS & Additional parameters to be shown in error message \\
  \hline ERRORCATEGORY & Alarm severity. Values from 1 to 5 indicating importance of the alarm, or -1 if the alarm indicates recovery from a previous failure. \\
@@ -152,31 +159,6 @@ Concluding, for each alarm we will have a timestamp and an alarm identifier in t
 \caption{Detail of fields on table ALARM\_DETAILS} \label{tab:table_ers_errors_sam_ence}
 \end{table}
 
-\begin{table}
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline \headcell{Event type} & \headcell{Description} \\
-  \hline
-  \hline fieldElementAlarm & Alarm related to a field element \\
-  \hline fieldElementFailure & Failure in a field element \\
-  \hline operatorInformation & Information to the operator \\
-  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
-  \hline internalDiagnosis & Internal diagnosis of a system \\
-  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
-  \hline ImFecVersions & IM or FEC version \\
-  \hline internalTraces & Internal traces of a system \\
-  \hline operatorCommandAnswer & Answer to an operator command \\
-  \hline CommProblem & Undefined communication problem \\
-  \hline Information & Information message: versions, etc. \\
-  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
-  \hline QualityOfServiceAlarm & Loss of quality of service \\
-  \hline ProcessingErrorAlarm & SW or processing error \\
-  \hline EquipmentAlarm & Equipment failure \\
-  \hline EnvironmentAlarm & Related to the environment where the system is located \\
-  \hline other & Other \\
-  \hline
-\end{tabularx}
-\caption{Description of values for the field EVENT\_TYPE} \label{tab:field_event_type}
-\end{table}
 \clearpage
 
 \subsubsection{Reduced representation of alarms}
@@ -289,41 +271,9 @@ For this purpose, the R language provides a large amount of useful tools which c
 \subsection{Event type distribution}
 The first analysis we will perform consists on checking which event types appear in each maintenance station, and which percentage of the total amount of alarms corresponds to each of them. This will help us understand the nature of the events which are usually happening on our railway line.
 
-First of all we will obtain a list of all the types found in each of the stations. We already described in table~\ref{tab:field_event_type} all the possible values for this field, but depending on the diagnosis systems installed on each of the stations, a different subset of them will be used. The list of events for each of the stations is given in tables \ref{tab:field_event_type_antequera} (Stations A, B and D) and \ref{tab:field_event_type_segovia} (Station C).
+First of all we will obtain a list of all the types found in each of the stations. For confidentiality reasons, we will not disclose the actual event categories used by Thales' systems and will use numeric types instead. This is of little importance, as we will not consider at all the nature of the alarms itself.
 
-\begin{table}
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline \headcell{Event type} & \headcell{Description} \\
-  \hline
-  \hline fieldElementAlarm & Alarm related to a field element \\
-  \hline fieldElementFailure & Failure in a field element \\
-  \hline operatorInformation & Information to the operator \\
-  \hline imCpuAndCommunications & Related to IM CPU or IM communications \\
-  \hline internalDiagnosis & Internal diagnosis of a system \\
-  \hline operationsDiagnosisCommunications & Communication error in Operation and Diagnosis systems \\
-  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
-  \hline
-\end{tabularx}
-\caption{Event types found in Stations A, B and D} \label{tab:field_event_type_antequera}
-\end{table}
-
-
-\begin{table}
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline \headcell{Event type} & \headcell{Description} \\
-  \hline
-  \hline CommProblem & Undefined communication problem \\
-  \hline Information & Information message: versions, etc. \\
-  \hline CommunicationsAlarm & Procedures and processes to carry information from one point to other \\
-  \hline ProcessingErrorAlarm & SW or processing error \\
-  \hline EquipmentAlarm & Equipment failure \\
-  \hline EnvironmentAlarm & Related to the environment where the system is located \\
-  \hline
-\end{tabularx}
-\caption{Event types found in Station C} \label{tab:field_event_type_segovia}
-\end{table}
-
-From these tables we can observe that alarm types in Stations A, B and D are the same. From this we can infer that diagnosis systems in these two stations are the same or very similar, as confirmed by Thales' engineers. Station C however presents a different - although also expectedly similar - set of alarm categories. This is an indicator of diagnosis systems being very different in Station C than in the other two stations, as confirmed by Thales' engineers.
+After analysing these types, we observe that alarm types in Stations A, B and D are the same, which we will name from 1 to 8 (of which types 5 and 6 which are sometimes not present). From this we can infer that diagnosis systems in these stations are the same or very similar, as confirmed by Thales' engineers. Station C however presents a completely different set of alarm categories which we will name from 11 to 16. This is an indicator of diagnosis systems being very different in Station C than in the other two stations, as confirmed by Thales' engineers.
 
 For better overview of distribution of these alarm types, we will create charts of their respective percentages for each of the stations. These charts can be seen in figures \ref{fig:albacete_chart} (Station A), \ref{fig:antequera_chart} (Station B), \ref{fig:segovia_chart} (Station C) and \ref{fig:sevilla_chart} (Station D).
 
@@ -354,7 +304,7 @@ For better overview of distribution of these alarm types, we will create charts 
 
 \clearpage
 
-We can see that in all of the stations, a single alarm type predominates among all of them. Specifically, we have a vast majority of communication alarms in Stations B and C, and a majority of field element failure alarms in Stations A and D. This is not surprising due to the considerable differences between all of them, but can become a problem as the other categories may be too small compared to these main ones when performing Data Mining techniques, obtaining less information - or none at all - from them.
+We can see that in all of the stations, a single alarm type predominates among all of them. However, the predominant type is not the same in all the stations. This is not surprising due to the considerable differences between all of them, but can become a problem as the other categories may be too small compared to these main ones when performing Data Mining techniques, obtaining less information - or none at all - from them.
 
 In this direction, it is possible that further actions are required in order to compensate these differences, and avoid that more frequent alarms overshadow the less frequent ones.
 
@@ -386,9 +336,9 @@ The result of this correlation is represented in figures \ref{fig:albacete_corr}
 
 \clearpage
 
-At first sight, we can affirm that these relations are different even in stations A, B and D, which we found to have similar diagnosis systems. This indicates that, even with similar diagnosis systems, the systems conforming both lines are different. This is indeed confirmed by Thales' engineers, as Stations A and B control high speed lines, while Station D corresponds to a commuter line.
+At first sight, we can affirm that these relations are different even in stations A, B and D, which we found to have similar diagnosis systems. This indicates that, even with similar diagnosis systems, the systems conforming each line are different. This is indeed confirmed by Thales' engineers, as Stations A and B control high speed lines, while Station D corresponds to a commuter line.
 
-Furthermore, we can see strong correlations in Station D (Field element failure and operator information) and Station C (Communications alarms and processing error alarms). As we don't have deep information of the nature of these categories, we can't affirm that this high correlation is due to any causal relation. However, we observe that both these cases show high correlation for the type of alarm which is more frequent in each station, so uneven distribution of alarms might be the cause of this apparent relation between alarms.
+Furthermore, we can see strong correlations in Station D and Station C. As we don't have deep information of the nature of these categories, we can't affirm that this high correlation is due to any causal relation. However, we observe that both these cases show high correlation for the type of alarm which is more frequent in each station, so uneven distribution of alarms might be the cause of this apparent relation between alarms.
 
 From this analysis we can conclude the significant differences in alarm relations between stations, confirming our first thoughts of impossibility of reducing the problem by generalising and merging data from different stations. Further analysis using specific alarm identifiers instead of categories will be needed to obtain relevant results.
 

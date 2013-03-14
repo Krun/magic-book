@@ -1,6 +1,13 @@
 \chapter{Prototype Implementation}
-\label{chap:prototype}
+\begin{chapterintro}
+In this chapter we will describe the design and implementation of a prototype predictive module. This module is a software library which allows end users to actually obtain predictions using the knowledge we have acquired in previous stages of the project.
 
+The prototype relies mainly on a \emph{Rule Engine}, which evaluates the input conditions (past events) and provides with predictions for the future. Further details on rule engines and the chosen implementation will be given as well.
+
+Although the purpose of our prototype does not include user interfaces or any visualisation, we will provide examples on how an actual predictive interface can be presented to maintenance operators.
+\end{chapterintro}
+
+\label{chap:prototype}
 \section{Module description}
 \label{sec:module_description}
 In this section we will provide a general description of the implemented prototype. This prototype allows the usage of already existing association rules, which have been already obtained as the result of a \emph{Data Mining}\cite{torgo2003data}\cite{han2006data} procedure. These rules do not offer any functionality by themselves, as a system is needed to check whether their conditions are fulfilled and therefore a prediction can be made.

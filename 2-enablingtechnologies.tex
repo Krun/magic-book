@@ -36,7 +36,7 @@ Different algorithms can usually be classified in the following categories:
  \litem{Sequence analysis:} Finding frequent sequences or episodes in data~\cite{zhao2003sequential,weiss2002predicting}.
 \end{enumerate}
 
-\subsection{Choosing an Algorithm}
+\section{Choosing an Algorithm}
 \label{sec:algorithms}
 From the previous classification, \emph{Segmentation} and \emph{summarization} algorithms seem to be obviously out of the question, as their functionality differs completely from the objectives we want to achieve in our project. \emph{Regression} algorithms are inadequate as well due to the nature of our data. We do not count on variables whose future value we want to predict.
 
@@ -50,6 +50,19 @@ In this direction, we will use the approach of the \emph{association} algorithms
 
 Therefore, we find this to be the most appropriate approach, as it addresses our problem directly without the need of transforming it into a different kind of situation.
 
+
+\subsection{General Purpose Algorithms}
+
+Even though we are specifically aiming to perform sequence mining in our project, there are several general purpose algorithms which could be used in our project with the necessary changes. Algorithms such as \emph{Apriori}\cite{kumar2010implementation} could for example be used after a pertinent data transformation. However, these aditional steps would require significant additional work, and therefore we will look for alternative algorithms which can handle these issues on their own.
+
+\subsubsection{Neural networks}
+An alternative approach for our problem is to treat it as a \emph{classification} issue instead of an \emph{association} one. This can be simply achieved by defining the current situation as the item to classify, and the categories being all the possible future situations. The set of today's events will therefore fall into one category which indicates which events are likely to happen tomorrow.
+
+\emph{Neural Networks}\cite{rojas1996neural} are amongst the most popular tools for this kind of problem. Neural Networks are a computational tool modeled on the interconnection of the neuron in the nervous systems of the human brain and that of other organisms. Neural Networks are a type of non-linear processing system that is ideally suited for a wide range of tasks, especially tasks where there is no existing algorithm for task completion. They can be trained to solve certain problems using a teaching method and sample data. In this way, identically constructed networks can be used to perform different tasks depending on the training received. With proper training, neural networks are capable of generalization, the ability to recognize similarities among different input patterns, especially patterns that have been corrupted by noise.
+
+\subsection{Sequence Mining Algorithms}
+In this section we will analyse some of the existing algorithms designed for the specific purpose of mining sequences. These algorithms will likely require much less adaptation an previous work in order to be applicable to our project, as their purpose is the same or very similar to our goals.
+
 \subsubsection{The SPADE Algorithm}
 \label{sec:the_spade_algorithm}
 An algorithm to Frequent Sequence Mining is the SPADE\cite{zaki2001spade} (Sequential PAttern Discovery using Equivalence classes) algorithm. It uses a vertical id-list database format, where we associate to each sequence a list of objects in which it occurs. Then, frequent sequences can be found efficiently using intersections on id-lists. The method also reduces the number of databases scans, and therefore also reduces the execution time.
@@ -60,6 +73,10 @@ Subsequent n-sequences can than be formed by joining (n-1)-sequences using their
 
 One implementation of the SPADE algorithm is the cSPADE algorithm. This implementation allows for timing constraints and is available in the form of a R library \cite{zaki2000cspade}.
 
+\subsubsection{Timeweaver}
+A particularly type of algorithm which can be very useful for our purposes are genetic algorithms\cite{goldberg1989genetic}. Specifically, a similar problem to ours has already been aproached in the past in some other research project, through the implementation of the \emph{Timeweaver} algorithm\cite{weiss1999timeweaver}. This implementation is not publicly available, but there are several tools for the implementation of custom genetic algorithms which can be used.
+
+Although this is a very good option for approaching our project, it requires further implementation than other algorithms such as cSPADE (see section~\ref{sec:the_spade_algorithm}).
 
 \subsubsection{The Eclat Algorithm}
 The Eclat algorithm \cite{zaki1997new} is used to perform itemset mining. Itemset mining let us find frequent patterns in data like if a consumer buys milk, he also buys bread. This type of pattern is called association rules and is used in many application domains.
@@ -72,11 +89,6 @@ This algorithm could be used in our context by treating events as items. If the 
 The \emph{FP-Growth} Algorithm, proposed by Han in \cite{han2000mining}, is an efficient and scalable method for mining the complete set of frequent patterns by pattern fragment growth, using an extended prefix-tree structure for storing compressed and crucial information about frequent patterns named frequent-pattern tree (FP-tree). In his study, Han proved that his method outperforms other popular methods for mining frequent patterns, e.g. the Apriori Algorithm \cite{agrawal1994fast} and the TreeProjection \cite{agarwal2001tree}. In some later works \cite{kumar2010implementation} it was proved that FP-Growth has better performance than other methods, including Eclat \cite{zaki1997new} and others.
 
 Although the FP-Growth Algorithm is very efficient and one of the most popular association mining methods, it doesn't provide tools to effectively apply temporal constraints in a simple and efficient way as cSPADE does (see section~\ref{sec:the_spade_algorithm})
-
-\subsubsection{Neural networks}
-An alternative approach for our problem is to treat it as a \emph{classification} issue instead of an \emph{association} one. This can be simply achieved by defining the current situation as the item to classify, and the categories being all the possible future situations. The set of today's events will therefore fall into one category which indicates which events are likely to happen tomorrow.
-
-\emph{Neural Networks}\cite{rojas1996neural} are amongst the most popular tools for this kind of problem. Neural Networks are a computational tool modeled on the interconnection of the neuron in the nervous systems of the human brain and that of other organisms. Neural Networks are a type of non-linear processing system that is ideally suited for a wide range of tasks, especially tasks where there is no existing algorithm for task completion. They can be trained to solve certain problems using a teaching method and sample data. In this way, identically constructed networks can be used to perform different tasks depending on the training received. With proper training, neural networks are capable of generalization, the ability to recognize similarities among different input patterns, especially patterns that have been corrupted by noise.
 
 \section{The R language}
 \label{sec:the_r_language}

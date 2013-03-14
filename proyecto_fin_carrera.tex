@@ -21,6 +21,8 @@
 \usepackage[usenames,dvipsnames,table]{xcolor}
 \usepackage{verbatim}
 
+\bibliographystyle{unsrt}
+
 
 \usepackage[pdftex,
     pdfauthor={Adrian Perez Orozco},
@@ -68,6 +70,14 @@
 }
 
 \definecolor{chapterdetails}{HTML}{6DBAFF}
+
+% \usepackage[sf,bf]{titlesec}
+% \titleformat{\chapter}[display]
+%   {\normalfont\Large\sffamily\raggedleft}
+%   {\vspace{5cm}\MakeUppercase{\chaptertitlename}%
+%     \rlap{ \resizebox{!}{1.5cm}{\thechapter} \color{chapterdetails}\rule{5cm}{1.5cm}}}
+%   {10pt}{\Huge}[{\color{chapterdetails}\titlerule[0.8mm] }]
+% \titlespacing*{\chapter}{0pt}{30pt}{20pt}
 
 \usepackage[sf,bf]{titlesec}
 \titleformat{\chapter}[display]
@@ -147,13 +157,16 @@
 \include{2-enablingtechnologies}
 \include{3-contextandgoals}
 \include{4-datamining}
+\include{4b-results}
 \include{5-prototype}
 \include{6-conclusions}
 
 \cleardoublepage
+
 \phantomsection
+
 \addcontentsline{toc}{chapter}{Bibliography}
-\bibliographystyle{unsrt}
+
 \bibliography{datamining}
 
 \end{document}
