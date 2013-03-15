@@ -3,6 +3,62 @@
 \begin{chapterintro}
 In this chapter we will gather the conclusions obtained as a result of the project, as well as possible future work that can be done for further development of this project and any other predictive tasks in general.
 \end{chapterintro}
-\section{Project outcome}
+\section{Project outcomes}
+The main outcome of this project is the obtention of large amounts of knowledge which can be used for predictive purpose by Thales' maintenance operators. As presented in chapter~\ref{chap:results}, we have obtained several large rulesets which can be used to predict events with high confidence values, up to 80\% in some cases.
+
+These rulesets have been obtained for the four stations we have studied (named A, B, C and D; and located in different points across the Spanish territory). Furthermore, for each of the stations, different processes have been performed in order to obtain rules for different time periods: one day, two days and seven days. This allows maintenance operators to obtain predictions for different time periods according to what is more convenient for them. While it may be useful to predict events on a daily basis to foresee shortage times and optimise maintenance, it sometimes might be necessary to know with more days in advance in order to acquire the needed equipment or resources to solve the problems. Additionally, these rulesets also contain relations which have been found to be of low confidence, but which can still be useful for further research.
+
+In order to obtain higher quality results, several methods have been used as described in chapter~\ref{chap:datamining}. This includes identifying changes in the data which could lead to significantly better results. Although sometimes manually and impossible to automatise for a large-scale application, this has been very useful to identify the need to better classificate alarms in terms of the systems which are raising them, which can be automatised in the future by modifying the way maintenance stations register these events.
+
+Also, a prototype has been designed and implemented in the form of a Java library. This allows our obtained rulesets to be implemented right away within Thales' systems, which is very useful to start in-place evaluation and already allows predictive maintenance to be performed. The engine has been implemented in a modular way, so that rulesets are independent of the software itself and can therefore be added or updated anytime in a very easy way.
+
+Furthermore, the project has allowed us to perform a deep insight into data mining techniques, and specially into the way of applying these techniques to event-based problems. The developed processes are not only useful for this specific purpose, but can also be used in any similar environment in which event-prediction can offer benefits.
+
+
+
+\section{Achieved goals}
+
+In chapter~\ref{chap:context_and_goals} we mentioned a list of goals for the project. The achieved goals can be summarised as follows:
+
+\subsubsection*{Perform a preliminary statistical analysis to set the project grounds}
+
+This goal has been achieved successfully. Its results are presented in chapter~\ref{chap:context_and_goals}
+
+\subsubsection*{Identify differences between maintenance stations}
+
+This goal has been achieved successfully. Through the data analysis described in chapter~\ref{chap:context_and_goals} we identified the differences between all the stations. These differences were later confirmed by Thales' engineers, who provided further information on the differences between systems in each station.
+
+\subsubsection*{Obtain rules to predict alarms using data of other alarms occurrence}
+
+This goal has been achieved successfully. As the main goal of the project, the results described in chapter~\ref{chap:results} refer mainly to this goal, as well as most of this document.
+
+\subsubsection*{Validate and evaluate rule sets. Determine confidence of predictions}
+
+This goal has been achieved successfully. The validation and evaluation processes have been a very important part of the project, and all the resultsets contain confidence information as a result of a thorough validation process, as described in chapter~\ref{chap:datamining}.
+
+\subsubsection*{Identify rule sets which can be applied to different station types}
+
+This goal has been achieved successfully. Due to the high differences between the studied stations, each of them has a very strictly defined set of rules which can be applied. In the case of new stations being built with similar characteristics to the existing ones, this point would need to be reevaluated.
+
+\subsubsection*{Identify which system or environment variables are more decisive for alarm prediction}
+
+This goal has been achieved successfully. As mentioned in chapter~\ref{chap:context_and_goals}, all database fields have been analysed in order to reduce alarm representation to the minimum. Furthermore, additional fields which could be of use to improve performance have been identified.
+
+\section{Conclusions}
+After the development of this project, we have learnt about the importance and benefits of predictive operations. We can assure than machine learning and data mining algorithms can therefore offer a very important advantage in terms of predicting behaviours and events in any kind of system.
+
+In this specific project, one of the obtained conclusions is that it is essential to count on an appropriate data model in order to perform effective data mining. In our case, additional information about the elements which raised the alarms could have helped significantly to perform much better searches and obtain higher quality rules. Furthermore, it would also have been useful to know which alarms are more likely to be useful to identify other future events, or potential relations between them which could be known from experience by maintenance operators.
+
+Existing algorithms for sequence mining do not usually take into account the separation between antecedents and consequents. The chosen algorithm, cSPADE, is one of the few solutions which already took this into account, which is highly recommended and benefitial in order to avoid heavy data transformation. This algorithm, however, allows for little fine-tuning, and performs searches in a way which could be simplified for specific cases like ours.
+
+Generally, we have observed how information can be obtained from almost everywhere with the adequate techniques. Data mining is therefore something from which many different systems can benefit, from failure prediction like in ours, to process optimisation or any other kind of knowledge.
+ 
 
 \section{Future work}
+The project outcome can also serve as a solid base for future work and development. First of all, as mentioned in chapter~\ref{chap:datamining}, clustering is an efficient way of reducing the complexity of our problem and allows us to obtain much better results. Further improvement of these clustering methods, or their automation, could offer significant improvements over the methods developed for this project. In this direction, the obtained information can help maintenance operators to identify which information can actually be useful in terms of event classification, and allows further improvement of maintenance systems.
+
+Also, as mentioned in chapter~\ref{chap:enabling_technologies}, there are other algorithms which can be used for this kind of problems. Although they require further adaptation or data transformation to be applicable, they could also provide good performance after the needed operations. A combination of both approaches could provide much richer datasets and better overall performance.
+
+In this project we have performed analysis for three diferent time windows: one day, two days and seven days. A further way of improving the system usefulness would be to identify other potential good time windows and perform different analysis. Although we did not count on enough data to make monthly or yearly analysis, this is something that could be studied and developed in the future.
+
+Finally, additional work could be done for this specific context based on different data. Instead of trying to predict events taking other events as input data, it would be possible to take other kinds of data such as system temperatures or voltage variations. At the moment of developing this project, such data cannot be automatically acquired, and therefore such analysis is not possible. However, useful information could be extracted from such data and could be useful to develop this option in the future.
